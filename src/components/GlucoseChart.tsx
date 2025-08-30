@@ -1,4 +1,5 @@
 import React from "react";
+import { Box, Text } from "ink";
 import type { GlucoseData } from "../types";
 import { createTextChart, createYAxisLabels, createTimeLabels } from "../utils/chart";
 import { CHART_CONFIG } from "../utils/config";
@@ -39,10 +40,10 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({ data, countdown }) =
   ];
   
   return (
-    <div>
+    <Box flexDirection="column">
       {displayLines.map((line, i) => (
-        <div key={i}>{line}</div>
+        <Text key={i}>{line}</Text>
       ))}
-    </div>
+    </Box>
   );
 };
