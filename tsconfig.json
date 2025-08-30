@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["ES2020"],
+    "outDir": "./dist",
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "jsx": "react",
+    "declaration": false,
+    "sourceMap": false,
+    "allowJs": true,
+    "noImplicitAny": false
+  },
+  "include": ["*.ts", "*.tsx"],
+  "exclude": ["node_modules", "dist"]
+}
