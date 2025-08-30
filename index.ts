@@ -1,6 +1,7 @@
 import axios from "axios";
 import * as dotenv from "dotenv";
 import * as crypto from "crypto";
+import * as asciichart from "asciichart";
 
 dotenv.config();
 
@@ -15,125 +16,128 @@ const HEADERS = {
   version: "4.13.0",
 };
 
+interface GlucoseData {
+  FactoryTimestamp: string;
+  Timestamp: string;
+  type: number;
+  ValueInMgPerDl: number;
+  MeasurementColor: number;
+  GlucoseUnits: number;
+  Value: number;
+  isHigh: boolean;
+  isLow: boolean;
+}
+
+interface ApiResponse {
+  jwtToken: string;
+  accountIdHash: string;
+  patientId: string;
+}
+
 /**
  * api documentation:
  * https://gist.github.com/khskekec/6c13ba01b10d3018d816706a32ae8ab2
  */
-async function login() {
+async function authenticate(): Promise<ApiResponse> {
   const email = process.env.EMAIL;
   const password = process.env.PASSWORD;
 
   if (!email || !password) {
-    console.error("EMAIL and PASSWORD environment variables must be set");
-    process.exit(1);
+    throw new Error("EMAIL and PASSWORD environment variables must be set");
   }
 
-  try {
-    console.log("Making API requests...");
+  // Retrieve auth token
+  const { data: loginResponse } = await axios.post(
+    `${API_BASE_URL}/llu/auth/login`,
+    { email, password },
+    { headers: HEADERS }
+  );
 
-    // Retrieve auth token
+  const jwtToken = loginResponse?.data?.authTicket?.token;
+  const accountId = loginResponse?.data?.user?.id;
 
-    console.log("/llu/auth/login...");
-    const { data: loginResponse } = await axios.post(
-      `${API_BASE_URL}/llu/auth/login`,
-      {
-        email,
-        password,
+  if (!jwtToken) throw new Error("Authentication failed");
+  if (!accountId) throw new Error("Account ID not found");
+
+  // SHA256 digest of a user's id as a 64-char hexadecimal string
+  const accountIdHash = crypto.createHash("sha256").update(accountId).digest("hex");
+
+  // retrieve patientId
+  const { data: connectionsResponse } = await axios.get(
+    `${API_BASE_URL}/llu/connections`,
+    {
+      headers: {
+        ...HEADERS,
+        authorization: `Bearer ${jwtToken}`,
+        "account-id": accountIdHash,
       },
-      {
-        headers: HEADERS,
+    }
+  );
+
+  const patientId = connectionsResponse?.data[0]?.patientId;
+  if (!patientId) throw new Error("No patient ID found");
+
+  return { jwtToken, accountIdHash, patientId };
+}
+
+async function fetchGlucoseData(auth: ApiResponse): Promise<GlucoseData[]> {
+  const { data: graphResponse } = await axios.get(
+    `${API_BASE_URL}/llu/connections/${auth.patientId}/graph`,
+    {
+      headers: {
+        ...HEADERS,
+        authorization: `Bearer ${auth.jwtToken}`,
+        "account-id": auth.accountIdHash,
+      },
+    }
+  );
+
+  return graphResponse?.data?.graphData || [];
+}
+
+function displayGlucoseChart(data: GlucoseData[]) {
+  const values = data.map(d => d.Value);
+  const latest = values[values.length - 1];
+  
+  const chart = asciichart.plot(values, {
+    height: 15,
+    colors: [asciichart.blue]
+  });
+
+  console.clear();
+  console.log('🩸 Blood Glucose Monitor');
+  console.log(`Current: ${latest} mg/dL`);
+  console.log(`Readings: ${values.length}`);
+  console.log(chart);
+  console.log(`Last updated: ${new Date().toLocaleTimeString()}`);
+}
+
+async function main() {
+  try {
+    console.log("Authenticating...");
+    const auth = await authenticate();
+    
+    let data: GlucoseData[] = [];
+    
+    const fetchAndUpdate = async () => {
+      try {
+        data = await fetchGlucoseData(auth);
+        displayGlucoseChart(data);
+      } catch (error: any) {
+        console.error("Error fetching data:", error.message);
       }
-    );
+    };
 
-    DEBUG && console.log("Login response:", loginResponse);
-
-    const jwtToken = loginResponse?.data?.authTicket?.token;
-    const accountId = loginResponse?.data?.user?.id;
-
-    if (!jwtToken) {
-      console.error("Authentication failed");
-      process.exit(1);
-    }
-
-    if (!accountId) {
-      console.error("Account ID not found");
-      process.exit(1);
-    }
-
-    // SHA256 digest of a user's id as a 64-char hexadecimal string
-    const accountIdHash = crypto
-      .createHash("sha256")
-      .update(accountId)
-      .digest("hex");
-
-    DEBUG && console.log("JWT Token:", jwtToken);
-    DEBUG && console.log("Account ID Hash:", accountIdHash);
-
-    // retrieve patientId
-
-    console.log("/llu/connections...");
-    const { data: connectionsResponse } = await axios.get(
-      `${API_BASE_URL}/llu/connections`,
-      {
-        headers: {
-          ...HEADERS,
-          authorization: `Bearer ${jwtToken}`,
-          "account-id": accountIdHash,
-        },
-      }
-    );
-
-    DEBUG && console.log("Connections response:", connectionsResponse);
-
-    const patientId = connectionsResponse?.data[0]?.patientId;
-
-    if (!patientId) {
-      console.error("No patient ID found");
-      process.exit(1);
-    }
-
-    DEBUG && console.log("Patient ID:", patientId);
-
-    // retrieve the blood glucose measurements
-
-    console.log(`/llu/connections/${patientId}/graph...`);
-    const { data: graphResponse } = await axios.get(
-      `${API_BASE_URL}/llu/connections/${patientId}/graph`,
-      {
-        headers: {
-          ...HEADERS,
-          authorization: `Bearer ${jwtToken}`,
-          "account-id": accountIdHash,
-        },
-      }
-    );
-
-    DEBUG && console.log("Graph response:", graphResponse);
-
-    const currentMeasurementValue =
-      graphResponse?.data?.connection?.glucoseMeasurement?.Value;
-
-    if (!currentMeasurementValue) {
-      console.error("No blood glucose value found");
-      process.exit(1);
-    }
-
-    console.log("Blood Glucose:", currentMeasurementValue);
-
-    // idea: could plot graph from data.graphData
+    // Initial fetch
+    await fetchAndUpdate();
+    
+    // Refetch every minute
+    setInterval(fetchAndUpdate, 60000);
+    
   } catch (error: any) {
-    if (error.response) {
-      console.error(
-        "Error response:",
-        error.response.config.url,
-        error.response.data,
-        "status:",
-        error.response.status
-      );
-    } else {
-      console.error("Error:", error.message);
-    }
+    console.error("Error:", error.message);
+    process.exit(1);
   }
 }
 
-login();
+main();

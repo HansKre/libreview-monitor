@@ -11,10 +11,15 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@types/node": "^24.3.0",
+    "asciichart": "^1.5.25",
     "axios": "^1.11.0",
     "dotenv": "^17.2.1",
-    "ts-node": "^10.9.2",
+    "ink": "^6.2.3",
+    "react": "^19.1.1",
     "typescript": "^5.9.2"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.12",
+    "@types/node": "^24.3.0"
   }
 }
