@@ -1,5 +1,5 @@
-import { ChromeStorage } from '../utils/storage';
-import { IconGenerator } from '../utils/iconGenerator';
+import { ChromeStorage } from "../utils/storage";
+import { IconGenerator } from "../utils/iconGenerator";
 
 // API Configuration
 const API_BASE_URL = "https://api.libreview.io";
@@ -35,25 +35,27 @@ class LibreViewAPI {
 
   async authenticate(): Promise<ApiResponse> {
     const credentials = await ChromeStorage.getCredentials();
-    
+
     if (!credentials.email || !credentials.password) {
-      throw new Error("No credentials stored. Please configure in extension popup.");
+      throw new Error(
+        "No credentials stored. Please configure in extension popup."
+      );
     }
 
     const response = await fetch(`${API_BASE_URL}/llu/auth/login`, {
-      method: 'POST',
+      method: "POST",
       headers: HEADERS,
       body: JSON.stringify({
         email: credentials.email,
-        password: credentials.password
-      })
+        password: credentials.password,
+      }),
     });
 
     if (!response.ok) {
       throw new Error(`Authentication failed: ${response.statusText}`);
     }
 
-    const loginResponse = await response.json() as any;
+    const loginResponse = (await response.json()) as any;
     const jwtToken = loginResponse?.data?.authTicket?.token;
     const accountId = loginResponse?.data?.user?.id;
 
@@ -73,12 +75,14 @@ class LibreViewAPI {
     });
 
     if (!connectionsResponse.ok) {
-      throw new Error(`Failed to get connections: ${connectionsResponse.statusText}`);
+      throw new Error(
+        `Failed to get connections: ${connectionsResponse.statusText}`
+      );
     }
 
-    const connectionsData = await connectionsResponse.json() as any;
+    const connectionsData = (await connectionsResponse.json()) as any;
     const patientId = connectionsData?.data[0]?.patientId;
-    
+
     if (!patientId) throw new Error("No patient ID found");
 
     this.auth = { jwtToken, accountIdHash, patientId };
@@ -87,9 +91,9 @@ class LibreViewAPI {
 
   private async sha256(message: string): Promise<string> {
     const msgBuffer = new TextEncoder().encode(message);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 
   async fetchGlucoseData(): Promise<GlucoseData[]> {
@@ -101,13 +105,16 @@ class LibreViewAPI {
       throw new Error("Authentication required");
     }
 
-    const response = await fetch(`${API_BASE_URL}/llu/connections/${this.auth.patientId}/graph`, {
-      headers: {
-        ...HEADERS,
-        authorization: `Bearer ${this.auth.jwtToken}`,
-        "account-id": this.auth.accountIdHash,
-      },
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/llu/connections/${this.auth.patientId}/graph`,
+      {
+        headers: {
+          ...HEADERS,
+          authorization: `Bearer ${this.auth.jwtToken}`,
+          "account-id": this.auth.accountIdHash,
+        },
+      }
+    );
 
     if (!response.ok) {
       // Try to re-authenticate once on failure
@@ -119,7 +126,7 @@ class LibreViewAPI {
       throw new Error(`Failed to fetch glucose data: ${response.statusText}`);
     }
 
-    const graphResponse = await response.json() as any;
+    const graphResponse = (await response.json()) as any;
     return graphResponse?.data?.graphData || [];
   }
 }
@@ -132,30 +139,30 @@ class BackgroundService {
   private readonly MIN_UPDATE_INTERVAL_MS = 55000; // Minimum 55 seconds between updates
 
   async initialize() {
-    console.log('LibreView Extension Background Service Starting...');
-    
+    console.log("LibreView Extension Background Service Starting...");
+
     // Check if credentials exist before starting updates
     const credentials = await ChromeStorage.getCredentials();
     if (credentials.email && credentials.password) {
-      console.log('Credentials found, starting periodic updates...');
-      
+      console.log("Credentials found, starting periodic updates...");
+
       // Check if we have existing glucose data to display immediately
       const existingData = await ChromeStorage.getGlucoseData();
       if (existingData.value) {
         console.log(`Found existing glucose data: ${existingData.value} mg/dL`);
         await IconGenerator.updateBrowserIcon(existingData.value);
       }
-      
+
       // Start periodic updates
       this.startPeriodicUpdates();
       // Initial update (respecting rate limiting)
       await this.updateGlucoseData();
     } else {
-      console.log('No credentials found, waiting for user configuration...');
+      console.log("No credentials found, waiting for user configuration...");
       // Set initial title to indicate setup needed
       if (chrome.action && chrome.action.setTitle) {
-        chrome.action.setTitle({ 
-          title: 'Glucose Monitor - Setup Required' 
+        chrome.action.setTitle({
+          title: "LibreView Glucose Monitor - Setup Required",
         });
       }
     }
@@ -170,7 +177,7 @@ class BackgroundService {
       try {
         await this.updateGlucoseData();
       } catch (error) {
-        console.error('Periodic update failed:', error);
+        console.error("Periodic update failed:", error);
       }
     }, this.UPDATE_INTERVAL_MS);
   }
@@ -180,55 +187,75 @@ class BackgroundService {
       // Rate limiting: Check if enough time has passed since last update
       const now = Date.now();
       const timeSinceLastUpdate = now - this.lastUpdateTime;
-      
-      if (this.lastUpdateTime > 0 && timeSinceLastUpdate < this.MIN_UPDATE_INTERVAL_MS) {
-        console.log(`Rate limiting: Only ${Math.round(timeSinceLastUpdate/1000)}s since last update, minimum ${this.MIN_UPDATE_INTERVAL_MS/1000}s required`);
+
+      if (
+        this.lastUpdateTime > 0 &&
+        timeSinceLastUpdate < this.MIN_UPDATE_INTERVAL_MS
+      ) {
+        console.log(
+          `Rate limiting: Only ${Math.round(
+            timeSinceLastUpdate / 1000
+          )}s since last update, minimum ${
+            this.MIN_UPDATE_INTERVAL_MS / 1000
+          }s required`
+        );
         return;
       }
 
       // Double-check credentials before fetching
       const credentials = await ChromeStorage.getCredentials();
       if (!credentials.email || !credentials.password) {
-        console.log('No credentials available, skipping glucose data update');
+        console.log("No credentials available, skipping glucose data update");
         return;
       }
 
-      console.log(`Updating glucose data... (${Math.round(timeSinceLastUpdate/1000)}s since last update)`);
-      
+      console.log(
+        `Updating glucose data... (${Math.round(
+          timeSinceLastUpdate / 1000
+        )}s since last update)`
+      );
+
       const glucoseData = await this.api.fetchGlucoseData();
-      
+
       if (glucoseData && glucoseData.length > 0) {
         const latestValue = glucoseData[glucoseData.length - 1].Value;
-        
+
         // Store data
         await ChromeStorage.setGlucoseData(latestValue, glucoseData);
-        
+
         // Update icon
         await IconGenerator.updateBrowserIcon(latestValue);
-        
+
         // Update last fetch time
         this.lastUpdateTime = now;
-        
-        console.log(`✓ Updated glucose value: ${latestValue} mg/dL at ${new Date().toLocaleTimeString()}`);
+
+        console.log(
+          `✓ Updated glucose value: ${latestValue} mg/dL at ${new Date().toLocaleTimeString()}`
+        );
       } else {
-        console.log('No glucose data received from API');
+        console.log("No glucose data received from API");
       }
-      
     } catch (error) {
-      console.error('Failed to update glucose data:', error);
-      
+      console.error("Failed to update glucose data:", error);
+
       // Update icon to show error state
       if (chrome.action && chrome.action.setTitle) {
-        chrome.action.setTitle({ 
-          title: `Glucose Monitor - Error: ${(error as Error).message || 'Unknown error'}` 
+        chrome.action.setTitle({
+          title: `LibreView Glucose Monitor - Error: ${
+            (error as Error).message || "Unknown error"
+          }`,
         });
       }
     }
   }
 
-  async handleMessage(message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) {
+  async handleMessage(
+    message: any,
+    sender: chrome.runtime.MessageSender,
+    sendResponse: (response?: any) => void
+  ) {
     switch (message.type) {
-      case 'GET_GLUCOSE_DATA':
+      case "GET_GLUCOSE_DATA":
         try {
           const data = await ChromeStorage.getGlucoseData();
           sendResponse({ success: true, data });
@@ -236,16 +263,16 @@ class BackgroundService {
           sendResponse({ success: false, error: (error as Error).message });
         }
         break;
-        
-      case 'UPDATE_CREDENTIALS':
+
+      case "UPDATE_CREDENTIALS":
         try {
           await ChromeStorage.setCredentials(message.credentials);
           // Clear auth to force re-authentication with new credentials
           this.api = new LibreViewAPI();
-          
+
           // Start periodic updates now that we have credentials
           this.startPeriodicUpdates();
-          
+
           // Trigger immediate update
           await this.updateGlucoseData();
           sendResponse({ success: true });
@@ -253,10 +280,10 @@ class BackgroundService {
           sendResponse({ success: false, error: (error as Error).message });
         }
         break;
-        
-      case 'FORCE_UPDATE':
+
+      case "FORCE_UPDATE":
         try {
-          console.log('Force update requested from popup');
+          console.log("Force update requested from popup");
           await this.updateGlucoseData();
           const data = await ChromeStorage.getGlucoseData();
           sendResponse({ success: true, data });
@@ -264,9 +291,9 @@ class BackgroundService {
           sendResponse({ success: false, error: (error as Error).message });
         }
         break;
-        
+
       default:
-        sendResponse({ success: false, error: 'Unknown message type' });
+        sendResponse({ success: false, error: "Unknown message type" });
     }
   }
 }
@@ -289,7 +316,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 // Handle service worker lifecycle
-self.addEventListener('activate', (event) => {
-  console.log('LibreView Extension Service Worker Activated');
+self.addEventListener("activate", (event) => {
+  console.log("LibreView Extension Service Worker Activated");
   backgroundService.initialize();
 });
