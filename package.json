@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node index.tsx"
+    "start": "ts-node src/index.ts",
+    "lint": "eslint src/**/*.{ts,tsx}",
+    "lint:fix": "eslint src/**/*.{ts,tsx} --fix"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +24,9 @@
   "devDependencies": {
     "@types/ink": "^0.5.2",
     "@types/node": "^24.3.0",
-    "@types/react": "^19.1.12"
+    "@types/react": "^19.1.12",
+    "@typescript-eslint/eslint-plugin": "^8.41.0",
+    "@typescript-eslint/parser": "^8.41.0",
+    "eslint": "^9.34.0"
   }
 }
