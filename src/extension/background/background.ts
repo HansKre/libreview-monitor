@@ -127,7 +127,9 @@ class LibreViewAPI {
 class BackgroundService {
   private api = new LibreViewAPI();
   private updateInterval: number | null = null;
+  private lastUpdateTime = 0;
   private readonly UPDATE_INTERVAL_MS = 60000; // 1 minute
+  private readonly MIN_UPDATE_INTERVAL_MS = 55000; // Minimum 55 seconds between updates
 
   async initialize() {
     console.log('LibreView Extension Background Service Starting...');
@@ -136,9 +138,17 @@ class BackgroundService {
     const credentials = await ChromeStorage.getCredentials();
     if (credentials.email && credentials.password) {
       console.log('Credentials found, starting periodic updates...');
+      
+      // Check if we have existing glucose data to display immediately
+      const existingData = await ChromeStorage.getGlucoseData();
+      if (existingData.value) {
+        console.log(`Found existing glucose data: ${existingData.value} mg/dL`);
+        await IconGenerator.updateBrowserIcon(existingData.value);
+      }
+      
       // Start periodic updates
       this.startPeriodicUpdates();
-      // Initial update
+      // Initial update (respecting rate limiting)
       await this.updateGlucoseData();
     } else {
       console.log('No credentials found, waiting for user configuration...');
@@ -167,6 +177,15 @@ class BackgroundService {
 
   private async updateGlucoseData() {
     try {
+      // Rate limiting: Check if enough time has passed since last update
+      const now = Date.now();
+      const timeSinceLastUpdate = now - this.lastUpdateTime;
+      
+      if (this.lastUpdateTime > 0 && timeSinceLastUpdate < this.MIN_UPDATE_INTERVAL_MS) {
+        console.log(`Rate limiting: Only ${Math.round(timeSinceLastUpdate/1000)}s since last update, minimum ${this.MIN_UPDATE_INTERVAL_MS/1000}s required`);
+        return;
+      }
+
       // Double-check credentials before fetching
       const credentials = await ChromeStorage.getCredentials();
       if (!credentials.email || !credentials.password) {
@@ -174,7 +193,7 @@ class BackgroundService {
         return;
       }
 
-      console.log('Updating glucose data...');
+      console.log(`Updating glucose data... (${Math.round(timeSinceLastUpdate/1000)}s since last update)`);
       
       const glucoseData = await this.api.fetchGlucoseData();
       
@@ -187,7 +206,12 @@ class BackgroundService {
         // Update icon
         await IconGenerator.updateBrowserIcon(latestValue);
         
-        console.log(`Updated glucose value: ${latestValue} mg/dL`);
+        // Update last fetch time
+        this.lastUpdateTime = now;
+        
+        console.log(`✓ Updated glucose value: ${latestValue} mg/dL at ${new Date().toLocaleTimeString()}`);
+      } else {
+        console.log('No glucose data received from API');
       }
       
     } catch (error) {
@@ -232,6 +256,7 @@ class BackgroundService {
         
       case 'FORCE_UPDATE':
         try {
+          console.log('Force update requested from popup');
           await this.updateGlucoseData();
           const data = await ChromeStorage.getGlucoseData();
           sendResponse({ success: true, data });
