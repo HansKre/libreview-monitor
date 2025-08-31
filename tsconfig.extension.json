@@ -12,6 +12,7 @@
     "resolveJsonModule": true,
     "outDir": "./dist",
     "rootDir": "./src",
+    "jsx": "react-jsx",
     "types": ["chrome"]
   },
   "include": [

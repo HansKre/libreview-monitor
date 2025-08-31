@@ -33,8 +33,6 @@ Use at your own risk. Data accuracy may vary. Always follow guidance from your h
 
 ## Todos
 
-- [ ] Should update every minute
-- [ ] Check resiliency if connection is lost
 - [ ] Use react-charts for visualization
 - [ ] Improve colors and styling
 - [ ] Readmes's zusammenführen: CHROME_EXTENSION_README.md

@@ -217,73 +217,7 @@
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="header">
-        <h1>🩸 LibreView Glucose Monitor</h1>
-      </div>
-
-      <div class="tabs">
-        <button class="tab active" data-tab="graph">Graph</button>
-        <button class="tab" data-tab="settings">Settings</button>
-      </div>
-
-      <div class="tab-content">
-        <!-- Graph Tab -->
-        <div class="tab-pane active" id="graph-tab">
-          <div class="glucose-status">
-            <div>
-              <div class="current-value" id="current-value">--</div>
-              <div class="last-update" id="last-update">Loading...</div>
-            </div>
-            <button class="refresh-button" id="refresh-btn">Refresh</button>
-          </div>
-
-          <div class="chart-container" id="chart-container">
-            <div class="loading">Loading glucose data...</div>
-          </div>
-        </div>
-
-        <!-- Settings Tab -->
-        <div class="tab-pane" id="settings-tab">
-          <div class="settings-info">
-            Enter your LibreView credentials to enable automatic glucose
-            monitoring. Your credentials are stored securely in Chrome's local
-            storage.
-          </div>
-
-          <form id="credentials-form">
-            <div class="form-group">
-              <label for="email">Email:</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="your@email.com"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="password">Password:</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                placeholder="Your password"
-                required
-              />
-            </div>
-
-            <button type="submit" class="btn" id="save-btn">
-              Save Credentials
-            </button>
-
-            <div id="save-message" style="display: none"></div>
-          </form>
-        </div>
-      </div>
-    </div>
-
+    <div id="root"></div>
     <script src="../popup.js"></script>
   </body>
 </html>

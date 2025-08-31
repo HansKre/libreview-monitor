@@ -5,7 +5,7 @@ module.exports = {
   mode: 'production',
   entry: {
     background: './src/extension/background/background.ts',
-    popup: './src/extension/popup/popup.ts',
+    popup: './src/extension/popup/popup.tsx',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -13,12 +13,12 @@ module.exports = {
     clean: true,
   },
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: ['.tsx', '.ts', '.js', '.jsx'],
   },
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /\.(ts|tsx)$/,
         use: {
           loader: 'ts-loader',
           options: {
