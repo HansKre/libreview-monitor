@@ -338,8 +338,7 @@ class BackgroundService {
         try {
           // Ensure historical data is available before returning combined data
           await this.ensureHistoricalData();
-          const hoursBack = message.hoursBack || 12;
-          const data = await ChromeStorage.getCombinedGlucoseData(hoursBack);
+          const data = await ChromeStorage.getCombinedGlucoseData();
           sendResponse({ success: true, data });
         } catch (error) {
           sendResponse({ success: false, error: (error as Error).message });

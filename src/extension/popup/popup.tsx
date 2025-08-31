@@ -8,8 +8,7 @@ import { SettingsForm } from './components/SettingsForm';
 
 const PopupApp: React.FC = () => {
   const [currentTab, setCurrentTab] = useState('graph');
-  const [timePeriod, setTimePeriod] = useState<12 | 24>(12);
-  const { glucoseData, loading, error, forceUpdate } = useGlucoseData(currentTab, timePeriod);
+  const { glucoseData, loading, error, forceUpdate } = useGlucoseData(currentTab);
   const { credentials, setCredentials, saveCredentials, saveMessage } = useCredentials();
 
 
@@ -49,8 +48,6 @@ const PopupApp: React.FC = () => {
               currentValue={glucoseData.value}
               error={error}
               loading={loading}
-              timePeriod={timePeriod}
-              onTimePeriodChange={setTimePeriod}
             />
           </div>
         )}

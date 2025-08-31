@@ -7,7 +7,7 @@ export interface StoredGlucoseData {
   lastUpdate?: number;
 }
 
-export const useGlucoseData = (currentTab: string, hoursBack: number = 12) => {
+export const useGlucoseData = (currentTab: string) => {
   const [glucoseData, setGlucoseData] = useState<StoredGlucoseData>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +22,7 @@ export const useGlucoseData = (currentTab: string, hoursBack: number = 12) => {
 
   const loadGlucoseData = async () => {
     try {
-      const response = await sendMessage({ type: 'GET_GLUCOSE_DATA', hoursBack });
+      const response = await sendMessage({ type: 'GET_GLUCOSE_DATA' });
       if (response.success && response.data) {
         setGlucoseData(response.data);
         setError(null);
@@ -66,7 +66,7 @@ export const useGlucoseData = (currentTab: string, hoursBack: number = 12) => {
     }, 60000);
 
     return () => clearInterval(interval);
-  }, [currentTab, hoursBack]);
+  }, [currentTab]);
 
   return {
     glucoseData,

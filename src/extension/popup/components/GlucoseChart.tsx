@@ -8,17 +8,13 @@ interface GlucoseChartProps {
   currentValue?: number;
   error?: string | null;
   loading: boolean;
-  timePeriod?: 12 | 24;
-  onTimePeriodChange?: (period: 12 | 24) => void;
 }
 
 export const GlucoseChart: React.FC<GlucoseChartProps> = ({
   data,
   currentValue,
   error,
-  loading,
-  timePeriod = 12,
-  onTimePeriodChange
+  loading
 }) => {
   if (error) {
     return <div className="error">{error}</div>;
@@ -68,45 +64,6 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
           </div>
         </div>
 
-        {/* Time Period Toggle */}
-        {onTimePeriodChange && (
-          <div style={{
-            display: 'flex',
-            gap: '4px',
-            fontSize: '12px'
-          }}>
-            <button
-              onClick={() => onTimePeriodChange(12)}
-              style={{
-                padding: '4px 8px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                background: timePeriod === 12 ? '#007bff' : 'white',
-                color: timePeriod === 12 ? 'white' : '#666',
-                cursor: 'pointer',
-                fontSize: '11px',
-                fontFamily: 'inherit'
-              }}
-            >
-              12h
-            </button>
-            <button
-              onClick={() => onTimePeriodChange(24)}
-              style={{
-                padding: '4px 8px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                background: timePeriod === 24 ? '#007bff' : 'white',
-                color: timePeriod === 24 ? 'white' : '#666',
-                cursor: 'pointer',
-                fontSize: '11px',
-                fontFamily: 'inherit'
-              }}
-            >
-              24h
-            </button>
-          </div>
-        )}
       </div>
 
       <ResponsiveContainer width="100%" height={280}>
@@ -129,7 +86,7 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
               `${value} mg/dL`, 
               'Glucose'
             ]}
-            labelFormatter={(label) => `Time: ${label}`}
+            labelFormatter={(label: string) => `Time: ${label}`}
             contentStyle={{
               backgroundColor: 'white',
               border: '1px solid #ccc',

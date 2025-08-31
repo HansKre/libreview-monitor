@@ -65,11 +65,15 @@ npm run lint
 ## 📖 API Documentation
 
 <https://gist.github.com/khskekec/6c13ba01b10d3018d816706a32ae8ab2>
+<https://libreview-unofficial.stoplight.io/docs/libreview-unofficial/4503bd234db99-get-logbook>
 
 ## Todos
 
-- [ ] load historic data
-- [ ] refactor popup into reuseable components and util functions
-- [ ] colorize Chart-areas
+- [ ] colorize reference areas in Chart
 - [ ] Improve colors and styling
+- [ ] generate descriptions, screenshots
 - [ ] Publish to chrome webstore
+
+## UI
+
+<https://app.visily.ai/projects/0df74f50-8d40-42cd-a18a-2e853fcc5acd/boards/2155906>
