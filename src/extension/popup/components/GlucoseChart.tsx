@@ -3,6 +3,7 @@ import {
   CartesianGrid,
   Line,
   LineChart,
+  ReferenceArea,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -117,20 +118,7 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
               strokeWidth={1}
               strokeOpacity={0.5}
             />
-            <ReferenceLine
-              y={100}
-              stroke="#f44336"
-              strokeDasharray="2 2"
-              strokeWidth={1}
-              strokeOpacity={0.5}
-            />
-            <ReferenceLine
-              y={156}
-              stroke="#ff9800"
-              strokeDasharray="2 2"
-              strokeWidth={1}
-              strokeOpacity={0.5}
-            />
+            <ReferenceArea y1={100} y2={156} fill="#4caf50" fillOpacity={0.2} />
             <ReferenceLine
               y={190}
               stroke="#f44336"
