@@ -90,49 +90,38 @@ export interface ChartDataPoint {
 }
 
 export const formatChartData = (data: GlucoseData[]): ChartDataPoint[] => {
-  const actualData: ChartDataPoint[] = data.map(item => ({
+  if (data.length === 0) return [];
+  
+  const lastDataPoint = data[data.length - 1];
+  
+  // Map actual data, but make the last point have both actual and projected values for smooth connection
+  const actualData: ChartDataPoint[] = data.map((item, index) => ({
     time: new Date(item.Timestamp).toLocaleTimeString('en-US', { 
       hour: '2-digit', 
       minute: '2-digit',
       hour12: false
     }),
     value: item.Value,
-    projectedValue: null, // No projection for actual data
+    // Add projected value to last actual data point to ensure smooth connection
+    projectedValue: index === data.length - 1 ? item.Value : null,
     timestamp: item.Timestamp,
     color: getGlucoseColor(item.Value),
     isProjected: false
   }));
   
-  // Start projection from the last actual data point for smooth connection
-  const lastDataPoint = data[data.length - 1];
-  const projectionStartPoint: ChartDataPoint = {
-    time: new Date(lastDataPoint.Timestamp).toLocaleTimeString('en-US', { 
+  // Generate projection data (excluding the connection point since it's already in actualData)
+  const projectionData: ChartDataPoint[] = calculateProjection(data).map(item => ({
+    time: new Date(item.timestamp).toLocaleTimeString('en-US', { 
       hour: '2-digit', 
       minute: '2-digit',
       hour12: false
     }),
-    value: null,
-    projectedValue: lastDataPoint.Value, // Connect from last actual value
-    timestamp: lastDataPoint.Timestamp,
-    color: getGlucoseColor(lastDataPoint.Value),
+    value: null, // No actual value for projected data
+    projectedValue: item.value,
+    timestamp: new Date(item.timestamp).toISOString(),
+    color: getGlucoseColor(item.value),
     isProjected: true
-  };
-  
-  const projectionData: ChartDataPoint[] = [
-    projectionStartPoint,
-    ...calculateProjection(data).map(item => ({
-      time: new Date(item.timestamp).toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        hour12: false
-      }),
-      value: null, // No actual value for projected data
-      projectedValue: item.value,
-      timestamp: new Date(item.timestamp).toISOString(),
-      color: getGlucoseColor(item.value),
-      isProjected: true
-    }))
-  ];
+  }));
   
   return [...actualData, ...projectionData];
 };
