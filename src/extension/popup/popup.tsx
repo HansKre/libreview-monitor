@@ -183,7 +183,8 @@ const PopupApp: React.FC = () => {
     const actualData = data.map(item => ({
       time: new Date(item.Timestamp).toLocaleTimeString('en-US', { 
         hour: '2-digit', 
-        minute: '2-digit' 
+        minute: '2-digit',
+        hour12: false
       }),
       value: item.Value,
       projectedValue: null, // No projection for actual data
@@ -197,7 +198,8 @@ const PopupApp: React.FC = () => {
     const projectionStartPoint = {
       time: new Date(lastDataPoint.Timestamp).toLocaleTimeString('en-US', { 
         hour: '2-digit', 
-        minute: '2-digit' 
+        minute: '2-digit',
+        hour12: false
       }),
       value: null,
       projectedValue: lastDataPoint.Value, // Connect from last actual value
@@ -211,7 +213,8 @@ const PopupApp: React.FC = () => {
       ...calculateProjection(data).map(item => ({
         time: new Date(item.timestamp).toLocaleTimeString('en-US', { 
           hour: '2-digit', 
-          minute: '2-digit' 
+          minute: '2-digit',
+          hour12: false
         }),
         value: null, // No actual value for projected data
         projectedValue: item.value,
@@ -258,7 +261,7 @@ const PopupApp: React.FC = () => {
                 </div>
                 <div className="last-update">
                   {glucoseData.lastUpdate 
-                    ? `Last updated: ${new Date(glucoseData.lastUpdate).toLocaleTimeString()}`
+                    ? `Last updated: ${new Date(glucoseData.lastUpdate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}`
                     : 'Loading...'
                   }
                 </div>
@@ -339,7 +342,7 @@ const PopupApp: React.FC = () => {
                     
                     {/* Vertical line separating actual from projected data */}
                     <ReferenceLine 
-                      x={new Date(glucoseData.data[glucoseData.data.length - 1]?.Timestamp || Date.now()).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                      x={new Date(glucoseData.data[glucoseData.data.length - 1]?.Timestamp || Date.now()).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
                       stroke="#999" 
                       strokeDasharray="3 3" 
                       strokeWidth={1} 

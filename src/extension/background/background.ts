@@ -210,8 +210,25 @@ class BackgroundService {
         // otherwise fall back to the last item from graphData
         const latestValue = result.currentMeasurementValue ?? result.data[result.data.length - 1].Value;
 
+        // Ensure graph data is consistent with current measurement
+        let processedData = [...result.data];
+        if (result.currentMeasurementValue && processedData.length > 0) {
+          // If we have a current measurement that's different from the last graph point,
+          // update the last graph point to match the current measurement for consistency
+          const lastDataPoint = processedData[processedData.length - 1];
+          if (lastDataPoint.Value !== result.currentMeasurementValue) {
+            // Update the most recent data point to match the current measurement
+            processedData[processedData.length - 1] = {
+              ...lastDataPoint,
+              Value: result.currentMeasurementValue,
+              Timestamp: new Date().toISOString() // Use current time for the most recent measurement
+            };
+            console.log(`📊 Synchronized graph data with current measurement: ${result.currentMeasurementValue} mg/dL`);
+          }
+        }
+
         // Store data
-        await ChromeStorage.setGlucoseData(latestValue, result.data);
+        await ChromeStorage.setGlucoseData(latestValue, processedData);
 
         // Update icon
         await IconGenerator.updateBrowserIcon(latestValue);

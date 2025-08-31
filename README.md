@@ -68,7 +68,6 @@ npm run lint
 
 ## Todos
 
-- [ ] 24 hours format
 - [ ] load historic data
 - [ ] refactor popup into reuseable components and util functions
 - [ ] colorize Chart-areas
