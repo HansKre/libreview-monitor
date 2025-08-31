@@ -8,13 +8,17 @@ interface GlucoseChartProps {
   currentValue?: number;
   error?: string | null;
   loading: boolean;
+  timePeriod?: 12 | 24;
+  onTimePeriodChange?: (period: 12 | 24) => void;
 }
 
 export const GlucoseChart: React.FC<GlucoseChartProps> = ({
   data,
   currentValue,
   error,
-  loading
+  loading,
+  timePeriod = 12,
+  onTimePeriodChange
 }) => {
   if (error) {
     return <div className="error">{error}</div>;
@@ -32,31 +36,77 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
   const lastDataPoint = data[data.length - 1];
 
   return (
-    <div className="chart-container" style={{ height: '320px', background: 'white', borderRadius: '8px', padding: '0', margin: "0px -4px 0px -14px" }}>
-      {/* Legend */}
-      <div style={{ 
-        padding: '8px 16px 0px 16px', 
-        fontSize: '11px', 
-        color: '#666',
+    <div className="chart-container" style={{ height: '360px', background: 'white', borderRadius: '8px', padding: '0', margin: "0px -4px 0px -14px" }}>
+      {/* Header with Legend and Time Period Controls */}
+      <div style={{
+        padding: '8px 16px 0px 16px',
         display: 'flex',
-        gap: '16px',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <div style={{ width: '16px', height: '2px', backgroundColor: getGlucoseColor(currentValue || 100) }}></div>
-          <span>Actual</span>
+        {/* Legend */}
+        <div style={{ 
+          fontSize: '11px', 
+          color: '#666',
+          display: 'flex',
+          gap: '16px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ width: '16px', height: '2px', backgroundColor: getGlucoseColor(currentValue || 100) }}></div>
+            <span>Actual</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ 
+              width: '16px', 
+              height: '2px', 
+              backgroundColor: getGlucoseColor(currentValue || 100),
+              opacity: 0.7,
+              backgroundImage: 'repeating-linear-gradient(to right, transparent, transparent 4px, white 4px, white 6px)'
+            }}></div>
+            <span>60min Projection</span>
+          </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <div style={{ 
-            width: '16px', 
-            height: '2px', 
-            backgroundColor: getGlucoseColor(currentValue || 100),
-            opacity: 0.7,
-            backgroundImage: 'repeating-linear-gradient(to right, transparent, transparent 4px, white 4px, white 6px)'
-          }}></div>
-          <span>60min Projection</span>
-        </div>
+
+        {/* Time Period Toggle */}
+        {onTimePeriodChange && (
+          <div style={{
+            display: 'flex',
+            gap: '4px',
+            fontSize: '12px'
+          }}>
+            <button
+              onClick={() => onTimePeriodChange(12)}
+              style={{
+                padding: '4px 8px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                background: timePeriod === 12 ? '#007bff' : 'white',
+                color: timePeriod === 12 ? 'white' : '#666',
+                cursor: 'pointer',
+                fontSize: '11px',
+                fontFamily: 'inherit'
+              }}
+            >
+              12h
+            </button>
+            <button
+              onClick={() => onTimePeriodChange(24)}
+              style={{
+                padding: '4px 8px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                background: timePeriod === 24 ? '#007bff' : 'white',
+                color: timePeriod === 24 ? 'white' : '#666',
+                cursor: 'pointer',
+                fontSize: '11px',
+                fontFamily: 'inherit'
+              }}
+            >
+              24h
+            </button>
+          </div>
+        )}
       </div>
 
       <ResponsiveContainer width="100%" height={280}>

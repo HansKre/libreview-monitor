@@ -8,6 +8,8 @@ export interface StoredData {
   lastGlucoseValue?: number;
   lastUpdate?: number;
   glucoseData?: any[];
+  historicalData?: any[];
+  lastHistoricalFetch?: number;
 }
 
 export class ChromeStorage {
@@ -74,5 +76,55 @@ export class ChromeStorage {
       glucoseData: limitedData, 
       lastUpdate: Date.now() 
     });
+  }
+
+  static async getHistoricalData(): Promise<{ data?: any[]; lastFetch?: number }> {
+    const result = await this.get(['historicalData', 'lastHistoricalFetch']);
+    return {
+      data: result.historicalData,
+      lastFetch: result.lastHistoricalFetch
+    };
+  }
+
+  static async setHistoricalData(data: any[]): Promise<void> {
+    await this.set({ 
+      historicalData: data, 
+      lastHistoricalFetch: Date.now() 
+    });
+  }
+
+  static async getCombinedGlucoseData(hoursBack: number = 12): Promise<{ value?: number; data?: any[]; lastUpdate?: number }> {
+    const [current, historical] = await Promise.all([
+      this.getGlucoseData(),
+      this.getHistoricalData()
+    ]);
+
+    // Merge historical and current data, removing duplicates
+    let combinedData: any[] = [];
+    
+    if (historical.data && historical.data.length > 0) {
+      combinedData = [...historical.data];
+    }
+    
+    if (current.data && current.data.length > 0) {
+      // Add new data points that aren't already in historical data
+      const existingTimestamps = new Set(combinedData.map(item => item.Timestamp));
+      const newPoints = current.data.filter(item => !existingTimestamps.has(item.Timestamp));
+      combinedData = [...combinedData, ...newPoints];
+    }
+
+    // Sort by timestamp and filter to requested time period
+    const now = new Date();
+    const hoursAgo = new Date(now.getTime() - hoursBack * 60 * 60 * 1000);
+    
+    combinedData = combinedData
+      .filter(item => new Date(item.Timestamp) >= hoursAgo)
+      .sort((a, b) => new Date(a.Timestamp).getTime() - new Date(b.Timestamp).getTime());
+
+    return {
+      value: current.value,
+      data: combinedData,
+      lastUpdate: current.lastUpdate
+    };
   }
 }

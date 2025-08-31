@@ -80,6 +80,40 @@ class LibreViewAPI {
     return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 
+  async fetchHistoricalData(): Promise<GlucoseData[]> {
+    if (!this.auth) {
+      await this.authenticate();
+    }
+
+    if (!this.auth) {
+      throw new Error("Authentication required");
+    }
+
+    const response = await fetch(
+      `${API_BASE_URL}/llu/connections/${this.auth.patientId}/logbook`,
+      {
+        headers: {
+          ...HEADERS,
+          authorization: `Bearer ${this.auth.jwtToken}`,
+          "account-id": this.auth.accountIdHash,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      // Try to re-authenticate once on failure
+      if (response.status === 401) {
+        this.auth = null;
+        await this.authenticate();
+        return this.fetchHistoricalData();
+      }
+      throw new Error(`Failed to fetch historical data: ${response.statusText}`);
+    }
+
+    const logbookResponse = (await response.json()) as any;
+    return logbookResponse?.data || [];
+  }
+
   async fetchGlucoseData(): Promise<{ data: GlucoseData[], currentMeasurementValue?: number }> {
     if (!this.auth) {
       await this.authenticate();
@@ -126,6 +160,7 @@ class BackgroundService {
   private readonly UPDATE_INTERVAL_MS = 60000; // 1 minute
   private readonly MIN_UPDATE_INTERVAL_MS = 55000; // Minimum 55 seconds between updates
   readonly ALARM_NAME = 'glucoseUpdate';
+  private historicalDataFetched = false;
 
   async initialize() {
     console.log("LibreView Extension Background Service Starting...");
@@ -170,8 +205,45 @@ class BackgroundService {
     console.log("Created repeating alarm for glucose updates every 1 minute");
   }
 
+  async ensureHistoricalData() {
+    if (this.historicalDataFetched) {
+      return;
+    }
+
+    try {
+      // Check if we already have recent historical data
+      const existingHistorical = await ChromeStorage.getHistoricalData();
+      const now = Date.now();
+      const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
+
+      if (existingHistorical.data && existingHistorical.lastFetch && 
+          (now - existingHistorical.lastFetch) < SIX_HOURS_MS) {
+        console.log("Using existing historical data (less than 6 hours old)");
+        this.historicalDataFetched = true;
+        return;
+      }
+
+      console.log("Fetching historical data from logbook...");
+      const historicalData = await this.api.fetchHistoricalData();
+      
+      if (historicalData && historicalData.length > 0) {
+        await ChromeStorage.setHistoricalData(historicalData);
+        console.log(`✓ Fetched and cached ${historicalData.length} historical data points`);
+      }
+      
+      this.historicalDataFetched = true;
+    } catch (error) {
+      console.error("Failed to fetch historical data:", error);
+      // Don't block regular updates if historical data fails
+      this.historicalDataFetched = true;
+    }
+  }
+
   async updateGlucoseData() {
     try {
+      // Ensure historical data is fetched before first graph request
+      await this.ensureHistoricalData();
+
       // Rate limiting: Check if enough time has passed since last update
       const now = Date.now();
       const timeSinceLastUpdate = now - this.lastUpdateTime;
@@ -264,7 +336,10 @@ class BackgroundService {
     switch (message.type) {
       case "GET_GLUCOSE_DATA":
         try {
-          const data = await ChromeStorage.getGlucoseData();
+          // Ensure historical data is available before returning combined data
+          await this.ensureHistoricalData();
+          const hoursBack = message.hoursBack || 12;
+          const data = await ChromeStorage.getCombinedGlucoseData(hoursBack);
           sendResponse({ success: true, data });
         } catch (error) {
           sendResponse({ success: false, error: (error as Error).message });
@@ -292,7 +367,7 @@ class BackgroundService {
         try {
           console.log("Force update requested from popup");
           await this.updateGlucoseData();
-          const data = await ChromeStorage.getGlucoseData();
+          const data = await ChromeStorage.getCombinedGlucoseData();
           sendResponse({ success: true, data });
         } catch (error) {
           sendResponse({ success: false, error: (error as Error).message });
