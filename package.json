@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/index.tsx",
     "lint": "eslint src/**/*.{ts,tsx}",
     "lint:fix": "eslint src/**/*.{ts,tsx} --fix",
     "build:extension": "webpack --config webpack.config.js",
@@ -16,15 +15,15 @@
   "type": "commonjs",
   "dependencies": {
     "axios": "^1.11.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "recharts": "^2.8.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "recharts": "^3.1.2",
     "typescript": "^5.9.2"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.4",
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.26",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
     "@typescript-eslint/eslint-plugin": "^8.41.0",
     "@typescript-eslint/parser": "^8.41.0",
     "copy-webpack-plugin": "^13.0.1",

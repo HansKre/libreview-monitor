@@ -22,18 +22,55 @@ Use at your own risk. Data accuracy may vary. Always follow guidance from your h
 
 ## 🖥 Installation
 
-1. Clone or download this repository:
+1. **Clone or download this repository:**
+
    ```bash
    git clone https://github.com/yourusername/libreview-monitor.git
+   cd libreview-monitor
+   npm install
    ```
 
-## API Documentation
+2. **Build the extension:**
+
+   ```bash
+   npm run build:extension
+   ```
+
+3. **Load in Chrome:**
+
+   - Open Chrome and navigate to `chrome://extensions/`
+   - Enable "Developer mode" (toggle in top right)
+   - Click "Load unpacked"
+   - Select the `dist` folder from your project
+
+4. **Configure:**
+   - Click the extension icon in your browser toolbar
+   - Go to "Settings" tab
+   - Enter your LibreView credentials
+   - Save and wait for data to sync
+
+## 🔧 Development
+
+```bash
+# Build extension for production
+npm run build:extension
+
+# Build extension with development mode and watch
+npm run build:extension:dev
+
+# Lint code
+npm run lint
+```
+
+## 📖 API Documentation
 
 <https://gist.github.com/khskekec/6c13ba01b10d3018d816706a32ae8ab2>
 
 ## Todos
 
-- [ ] Use react-charts for visualization
+- [ ] 24 hours format
+- [ ] load historic data
+- [ ] refactor popup into reuseable components and util functions
+- [ ] colorize Chart-areas
 - [ ] Improve colors and styling
-- [ ] Readmes's zusammenführen: CHROME_EXTENSION_README.md
 - [ ] Publish to chrome webstore

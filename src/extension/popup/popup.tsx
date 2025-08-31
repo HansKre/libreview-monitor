@@ -1,18 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
-
-interface GlucoseData {
-  FactoryTimestamp: string;
-  Timestamp: string;
-  type: number;
-  ValueInMgPerDl: number;
-  MeasurementColor: number;
-  GlucoseUnits: number;
-  Value: number;
-  isHigh: boolean;
-  isLow: boolean;
-}
+import type { GlucoseData } from '../../types';
 
 interface StoredGlucoseData {
   value?: number;
@@ -456,5 +445,6 @@ const PopupApp: React.FC = () => {
 // Initialize the React app
 const container = document.getElementById('root');
 if (container) {
-  render(<PopupApp />, container);
+  const root = createRoot(container);
+  root.render(<PopupApp />);
 }

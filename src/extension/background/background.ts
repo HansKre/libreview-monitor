@@ -1,5 +1,6 @@
 import { ChromeStorage } from "../utils/storage";
 import { IconGenerator } from "../utils/iconGenerator";
+import type { GlucoseData, ApiResponse } from "../../types";
 
 // API Configuration
 const API_BASE_URL = "https://api.libreview.io";
@@ -12,23 +13,6 @@ const HEADERS = {
   version: "4.13.0",
 };
 
-interface GlucoseData {
-  FactoryTimestamp: string;
-  Timestamp: string;
-  type: number;
-  ValueInMgPerDl: number;
-  MeasurementColor: number;
-  GlucoseUnits: number;
-  Value: number;
-  isHigh: boolean;
-  isLow: boolean;
-}
-
-interface ApiResponse {
-  jwtToken: string;
-  accountIdHash: string;
-  patientId: string;
-}
 
 class LibreViewAPI {
   private auth: ApiResponse | null = null;
