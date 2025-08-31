@@ -85,9 +85,40 @@ export const GlucoseStatus: React.FC<GlucoseStatusProps> = ({
           alignSelf: "end",
           gap: "6px",
           opacity: loading ? 0.6 : 1,
+          transition: "all 0.2s ease",
+        }}
+        onMouseEnter={(e) => {
+          if (!loading) {
+            e.currentTarget.style.backgroundColor = "#4caf50";
+            e.currentTarget.style.color = "white";
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!loading) {
+            e.currentTarget.style.backgroundColor = "transparent";
+            e.currentTarget.style.color = "#4caf50";
+          }
         }}
       >
-        <span style={{ fontSize: "16px" }}>🔄</span> Refresh
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{
+            transform: loading ? "rotate(360deg)" : "rotate(0deg)",
+            transition: "transform 0.6s ease-in-out",
+          }}
+        >
+          <polyline points="23 4 23 10 17 10" />
+          <polyline points="1 20 1 14 7 14" />
+          <path d="m20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+        </svg>
+        Refresh
       </button>
     </div>
   );

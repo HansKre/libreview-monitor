@@ -226,9 +226,9 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
       {/* Legend */}
       <div
         style={{
-          padding: "0 32px 0",
+          padding: "0 32px",
           display: "flex",
-          justifyContent: "flex-start",
+          justifyContent: "space-between", // distributes evenly
           alignItems: "center",
           fontFamily:
             '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -237,42 +237,44 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
           gap: "16px",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-          <div
-            style={{
-              width: "16px",
-              height: "2px",
-              backgroundColor: getGlucoseColor(currentValue || 100),
-            }}
-          ></div>
-          <span>Actual</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-          <div
-            style={{
-              width: "16px",
-              height: "2px",
+        {[
+          {
+            label: "Actual",
+            style: { backgroundColor: getGlucoseColor(currentValue || 100) },
+          },
+          {
+            label: "Standard Projection",
+            style: {
               backgroundColor: getGlucoseColor(currentValue || 100),
               opacity: 0.7,
               backgroundImage:
                 "repeating-linear-gradient(to right, transparent, transparent 4px, white 4px, white 6px)",
-            }}
-          ></div>
-          <span>Standard Projection</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-          <div
-            style={{
-              width: "16px",
-              height: "2px",
+            },
+          },
+          {
+            label: "Time-aware Projection",
+            style: {
               backgroundColor: getGlucoseColor(currentValue || 100),
               opacity: 0.5,
               backgroundImage:
                 "repeating-linear-gradient(to right, transparent, transparent 2px, white 2px, white 4px)",
+            },
+          },
+        ].map((item) => (
+          <div
+            key={item.label}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              flex: 1, // make each entry take equal space
+              justifyContent: "center", // center content inside
             }}
-          ></div>
-          <span>Time-aware Projection</span>
-        </div>
+          >
+            <div style={{ width: "16px", height: "2px", ...item.style }}></div>
+            <span>{item.label}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
