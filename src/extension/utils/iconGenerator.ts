@@ -1,12 +1,10 @@
 export class IconGenerator {
-  // No need for DIGIT_PATTERNS anymore!
-
   static async updateBrowserIcon(value: number): Promise<void> {
     try {
       console.log(`Generating icon for glucose value: ${value} mg/dL`);
 
       const size = 32;
-      const canvas = new OffscreenCanvas(size, size); // Use OffscreenCanvas for service workers
+      const canvas = new OffscreenCanvas(size, size);
       const ctx = canvas.getContext("2d");
 
       if (!ctx) {
@@ -47,18 +45,31 @@ export class IconGenerator {
         status = "Normal";
       }
 
-      // Fill background
+      // Fill the entire canvas with the background color
       ctx.fillStyle = bgColor;
-      ctx.fillRect(0, 0, size, size);
+      ctx.fillRect(0, 0, size, size); // Fills the entire 32x32 area
 
       // Set text properties
-      ctx.font = "bold 20px Arial"; // Increased font size and made it bold for better visibility
+      let fontSize = 20; // Start with a desired font size
+      const displayValue = value.toString();
+      const textPadding = 1; // Desired padding from the icon border
+
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillStyle = textColor;
 
-      // Draw the glucose value
-      const displayValue = value.toString();
+      // Dynamically adjust font size to ensure it fits with padding
+      do {
+        ctx.font = `bold ${fontSize}px Arial`;
+        const textMetrics = ctx.measureText(displayValue);
+        // Check if text width with padding exceeds canvas width
+        if (textMetrics.width + 2 * textPadding <= size) {
+          break; // Text fits, exit loop
+        }
+        fontSize--; // Reduce font size
+      } while (fontSize > 10); // Don't go below a reasonable minimum font size
+
+      // Draw the glucose value centered within the entire icon
       ctx.fillText(displayValue, size / 2, size / 2 + 1); // +1 for slight vertical adjustment
 
       // Get ImageData from the canvas
@@ -68,7 +79,7 @@ export class IconGenerator {
       if (chrome.action && chrome.action.setIcon) {
         await chrome.action.setIcon({
           imageData: {
-            [size]: imageData, // Use [size] for dynamic key
+            [size]: imageData,
           },
         });
         console.log(
