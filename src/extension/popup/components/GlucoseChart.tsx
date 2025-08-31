@@ -3,7 +3,6 @@ import {
   CartesianGrid,
   Line,
   LineChart,
-  ReferenceArea,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -12,6 +11,7 @@ import {
 } from "recharts";
 import type { GlucoseData } from "../../../types";
 import { formatChartData, getGlucoseColor } from "../utils/glucoseUtils";
+import { DelayedReferenceArea } from "./DelayedReferenceArea";
 
 interface GlucoseChartProps {
   data: GlucoseData[];
@@ -110,45 +110,6 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
               }}
             />
 
-            {/* Reference lines for glucose ranges */}
-            <ReferenceLine
-              y={70}
-              stroke="#8B0000"
-              strokeDasharray="2 2"
-              strokeWidth={1}
-              strokeOpacity={0.5}
-            />
-            <ReferenceArea y1={100} y2={156} fill="#4caf50" fillOpacity={0.2} />
-            <ReferenceLine
-              y={190}
-              stroke="#f44336"
-              strokeDasharray="2 2"
-              strokeWidth={1}
-              strokeOpacity={0.5}
-            />
-            <ReferenceLine
-              y={250}
-              stroke="#8B0000"
-              strokeDasharray="2 2"
-              strokeWidth={1}
-              strokeOpacity={0.5}
-            />
-
-            {/* Vertical line separating actual from projected data */}
-            <ReferenceLine
-              x={new Date(
-                lastDataPoint?.Timestamp || Date.now()
-              ).toLocaleTimeString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false,
-              })}
-              stroke="#999"
-              strokeDasharray="3 3"
-              strokeWidth={1}
-              strokeOpacity={0.6}
-            />
-
             {/* Actual glucose data line */}
             <Line
               type="monotone"
@@ -207,6 +168,44 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
               connectNulls={true}
               animationBegin={1500}
               animationDuration={1000}
+            />
+            {/* Reference lines for glucose ranges */}
+            <ReferenceLine
+              y={70}
+              stroke="#8B0000"
+              strokeDasharray="2 2"
+              strokeWidth={1}
+              strokeOpacity={0.5}
+            />
+            <DelayedReferenceArea y1={100} y2={156} />
+            <ReferenceLine
+              y={190}
+              stroke="#f44336"
+              strokeDasharray="2 2"
+              strokeWidth={1}
+              strokeOpacity={0.5}
+            />
+            <ReferenceLine
+              y={250}
+              stroke="#8B0000"
+              strokeDasharray="2 2"
+              strokeWidth={1}
+              strokeOpacity={0.5}
+            />
+
+            {/* Vertical line separating actual from projected data */}
+            <ReferenceLine
+              x={new Date(
+                lastDataPoint?.Timestamp || Date.now()
+              ).toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              })}
+              stroke="#999"
+              strokeDasharray="3 3"
+              strokeWidth={1}
+              strokeOpacity={0.6}
             />
           </LineChart>
         </ResponsiveContainer>
