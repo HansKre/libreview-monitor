@@ -94,38 +94,64 @@ export class IconGenerator {
     ]
   };
 
-  // Draw pixel-based numbers using the font patterns
+  // Draw pixel-based numbers using the font patterns with scaling for better readability
   private static drawNumber(data: Uint8ClampedArray, size: number, text: string, centerX: number, centerY: number, textColor: [number, number, number]) {
-    const digitWidth = 5;
-    const digitHeight = 7;
-    const digitSpacing = 1;
-    const totalWidth = text.length * digitWidth + (text.length - 1) * digitSpacing;
+    const baseDigitWidth = 5;
+    const baseDigitHeight = 7;
+    const baseDigitSpacing = 1;
     
-    // Starting position to center the text
-    const startX = centerX - Math.floor(totalWidth / 2);
-    const startY = centerY - Math.floor(digitHeight / 2);
+    // Calculate maximum possible scale that fits in the icon with minimal borders
+    const baseTotalWidth = text.length * baseDigitWidth + (text.length - 1) * baseDigitSpacing;
+    const maxPossibleScale = Math.floor(size / baseTotalWidth);
+    
+    // Use maximum scale possible for each case, but ensure it fits
+    let scale = maxPossibleScale;
+    if (text.length === 1) {
+      scale = Math.min(6, maxPossibleScale); // Even larger for single digit
+    } else if (text.length === 2) {
+      scale = Math.min(5, maxPossibleScale); // Very large for two digits  
+    } else if (text.length === 3) {
+      scale = Math.min(4, maxPossibleScale); // Large for three digits
+    }
+    
+    // Ensure minimum scale of 2
+    scale = Math.max(2, scale);
+    
+    const finalDigitWidth = baseDigitWidth * scale;
+    const finalDigitHeight = baseDigitHeight * scale;
+    const finalDigitSpacing = baseDigitSpacing * scale;
+    const finalTotalWidth = text.length * finalDigitWidth + (text.length - 1) * finalDigitSpacing;
+    
+    // Starting position to center the text (creates natural visual borders)
+    const startX = centerX - Math.floor(finalTotalWidth / 2);
+    const startY = centerY - Math.floor(finalDigitHeight / 2);
     
     for (let i = 0; i < text.length; i++) {
       const digit = text[i];
       const pattern = this.DIGIT_PATTERNS[digit];
       
       if (pattern) {
-        const digitStartX = startX + i * (digitWidth + digitSpacing);
+        const digitStartX = startX + i * (finalDigitWidth + finalDigitSpacing);
         
-        // Draw each pixel of the digit
-        for (let row = 0; row < digitHeight; row++) {
-          for (let col = 0; col < digitWidth; col++) {
+        // Draw each pixel of the digit, scaled up
+        for (let row = 0; row < baseDigitHeight; row++) {
+          for (let col = 0; col < baseDigitWidth; col++) {
             if (pattern[row] && pattern[row][col] === 1) {
-              const pixelX = digitStartX + col;
-              const pixelY = startY + row;
-              
-              // Make sure pixel is within bounds
-              if (pixelX >= 0 && pixelX < size && pixelY >= 0 && pixelY < size) {
-                const pixelIndex = (pixelY * size + pixelX) * 4;
-                data[pixelIndex] = textColor[0];     // R
-                data[pixelIndex + 1] = textColor[1]; // G
-                data[pixelIndex + 2] = textColor[2]; // B
-                data[pixelIndex + 3] = 255;          // A
+              // Draw a scale x scale block for each original pixel
+              for (let scaleY = 0; scaleY < scale; scaleY++) {
+                for (let scaleX = 0; scaleX < scale; scaleX++) {
+                  const pixelX = digitStartX + col * scale + scaleX;
+                  const pixelY = startY + row * scale + scaleY;
+                  
+                  // Make sure pixel is within bounds
+                  if (pixelX >= 0 && pixelX < size && pixelY >= 0 && pixelY < size) {
+                    const pixelIndex = (pixelY * size + pixelX) * 4;
+                    data[pixelIndex] = textColor[0];     // R
+                    data[pixelIndex + 1] = textColor[1]; // G
+                    data[pixelIndex + 2] = textColor[2]; // B
+                    data[pixelIndex + 3] = 255;          // A
+                  }
+                }
               }
             }
           }

@@ -96,7 +96,7 @@ class LibreViewAPI {
     return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 
-  async fetchGlucoseData(): Promise<GlucoseData[]> {
+  async fetchGlucoseData(): Promise<{ data: GlucoseData[], currentMeasurementValue?: number }> {
     if (!this.auth) {
       await this.authenticate();
     }
@@ -127,16 +127,21 @@ class LibreViewAPI {
     }
 
     const graphResponse = (await response.json()) as any;
-    return graphResponse?.data?.graphData || [];
+    const currentMeasurementValue = graphResponse?.data?.connection?.glucoseMeasurement?.Value;
+    
+    return {
+      data: graphResponse?.data?.graphData || [],
+      currentMeasurementValue
+    };
   }
 }
 
 class BackgroundService {
   private api = new LibreViewAPI();
-  private updateInterval: number | null = null;
   private lastUpdateTime = 0;
   private readonly UPDATE_INTERVAL_MS = 60000; // 1 minute
   private readonly MIN_UPDATE_INTERVAL_MS = 55000; // Minimum 55 seconds between updates
+  readonly ALARM_NAME = 'glucoseUpdate';
 
   async initialize() {
     console.log("LibreView Extension Background Service Starting...");
@@ -169,20 +174,19 @@ class BackgroundService {
   }
 
   private startPeriodicUpdates() {
-    if (this.updateInterval) {
-      clearInterval(this.updateInterval);
-    }
-
-    this.updateInterval = setInterval(async () => {
-      try {
-        await this.updateGlucoseData();
-      } catch (error) {
-        console.error("Periodic update failed:", error);
-      }
-    }, this.UPDATE_INTERVAL_MS);
+    // Clear any existing alarm
+    chrome.alarms.clear(this.ALARM_NAME);
+    
+    // Create a repeating alarm for glucose updates (more reliable than setInterval in service workers)
+    chrome.alarms.create(this.ALARM_NAME, {
+      delayInMinutes: 1, // Start after 1 minute
+      periodInMinutes: 1 // Repeat every minute
+    });
+    
+    console.log("Created repeating alarm for glucose updates every 1 minute");
   }
 
-  private async updateGlucoseData() {
+  async updateGlucoseData() {
     try {
       // Rate limiting: Check if enough time has passed since last update
       const now = Date.now();
@@ -215,13 +219,15 @@ class BackgroundService {
         )}s since last update)`
       );
 
-      const glucoseData = await this.api.fetchGlucoseData();
+      const result = await this.api.fetchGlucoseData();
 
-      if (glucoseData && glucoseData.length > 0) {
-        const latestValue = glucoseData[glucoseData.length - 1].Value;
+      if (result && result.data && result.data.length > 0) {
+        // Use currentMeasurementValue as the very latest value if available, 
+        // otherwise fall back to the last item from graphData
+        const latestValue = result.currentMeasurementValue ?? result.data[result.data.length - 1].Value;
 
         // Store data
-        await ChromeStorage.setGlucoseData(latestValue, glucoseData);
+        await ChromeStorage.setGlucoseData(latestValue, result.data);
 
         // Update icon
         await IconGenerator.updateBrowserIcon(latestValue);
@@ -230,7 +236,7 @@ class BackgroundService {
         this.lastUpdateTime = now;
 
         console.log(
-          `✓ Updated glucose value: ${latestValue} mg/dL at ${new Date().toLocaleTimeString()}`
+          `✓ Updated glucose value: ${latestValue} mg/dL at ${new Date().toLocaleTimeString()}${result.currentMeasurementValue ? ' (from current measurement)' : ' (from graph data)'}`
         );
       } else {
         console.log("No glucose data received from API");
@@ -313,6 +319,18 @@ chrome.runtime.onStartup.addListener(() => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   backgroundService.handleMessage(message, sender, sendResponse);
   return true; // Keep message channel open for async response
+});
+
+// Handle chrome alarms for periodic glucose updates
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name === backgroundService.ALARM_NAME) {
+    console.log("Glucose update alarm triggered");
+    try {
+      await backgroundService.updateGlucoseData();
+    } catch (error) {
+      console.error("Alarm-triggered update failed:", error);
+    }
+  }
 });
 
 // Handle service worker lifecycle

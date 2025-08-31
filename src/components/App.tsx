@@ -38,10 +38,12 @@ export const App: React.FC = () => {
         const glucoseData = await fetchGlucoseData(auth);
         setData(glucoseData);
         setCountdown(CHART_CONFIG.UPDATE_INTERVAL);
+        setError(null); // Clear any previous errors on successful fetch
       } catch (err: unknown) {
         const errorMessage =
           err instanceof Error ? err.message : "Unknown error";
         setError(errorMessage);
+        // Continue fetching every minute despite errors
       }
     };
 

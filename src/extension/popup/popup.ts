@@ -18,12 +18,15 @@ interface StoredGlucoseData {
 
 class PopupController {
   private currentTab = 'graph';
+  private refreshInterval: number | null = null;
+  private readonly REFRESH_INTERVAL_MS = 60000; // 1 minute
 
   constructor() {
     console.log('PopupController initialized');
     this.initializeTabs();
     this.initializeGraph();
     this.initializeSettings();
+    this.startAutoRefresh();
   }
 
   private initializeTabs() {
@@ -293,6 +296,30 @@ class PopupController {
     setTimeout(() => {
       messageDiv.style.display = 'none';
     }, 5000);
+  }
+
+  private startAutoRefresh() {
+    // Clear any existing interval
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
+
+    // Start auto-refresh every minute
+    this.refreshInterval = setInterval(() => {
+      console.log('Auto-refreshing glucose data...');
+      if (this.currentTab === 'graph') {
+        this.loadGlucoseData();
+      }
+    }, this.REFRESH_INTERVAL_MS);
+
+    // Clear interval when popup is closed/unloaded
+    window.addEventListener('beforeunload', () => {
+      if (this.refreshInterval) {
+        clearInterval(this.refreshInterval);
+      }
+    });
+
+    console.log('Auto-refresh enabled: glucose data will update every minute');
   }
 
   private sendMessage(message: any): Promise<any> {

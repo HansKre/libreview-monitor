@@ -5,7 +5,8 @@
   "description": "Real-time glucose monitoring with LibreView API integration",
   "permissions": [
     "storage",
-    "activeTab"
+    "activeTab",
+    "alarms"
   ],
   "host_permissions": [
     "https://api.libreview.io/*"
