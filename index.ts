@@ -120,6 +120,22 @@ async function login() {
 
     console.log("Blood Glucose:", currentMeasurementValue);
 
+    // retrieve logBook data
+
+    console.log(`/llu/connections/${patientId}/logbook...`);
+    const { data: logBookResponse } = await axios.get(
+      `${API_BASE_URL}/llu/connections/${patientId}/logbook`,
+      {
+        headers: {
+          ...HEADERS,
+          authorization: `Bearer ${jwtToken}`,
+          "account-id": accountIdHash,
+        },
+      }
+    );
+
+    DEBUG && console.log("LogBook response:", logBookResponse);
+
     // idea: could plot graph from data.graphData
   } catch (error: any) {
     if (error.response) {
