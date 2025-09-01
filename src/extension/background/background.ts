@@ -1,6 +1,13 @@
+import axios from "axios";
 import { ChromeStorage } from "../utils/storage";
 import { IconGenerator } from "../utils/iconGenerator";
-import type { GlucoseData, ApiResponse } from "../../types";
+import type {
+  GlucoseData,
+  ApiResponse,
+  LoginResponse,
+  ConnectionsResponse,
+  GraphResponse,
+} from "../../types";
 
 // API Configuration
 const API_BASE_URL = "https://api.libreview.io";
@@ -12,6 +19,12 @@ const HEADERS = {
   product: "llu.android",
   version: "4.13.0",
 };
+
+// Configure axios instance
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: HEADERS,
+});
 
 class LibreViewAPI {
   private auth: ApiResponse | null = null;
@@ -25,25 +38,12 @@ class LibreViewAPI {
       );
     }
 
-    const response = await fetch(`${API_BASE_URL}/llu/auth/login`, {
-      method: "POST",
-      headers: HEADERS,
-      body: JSON.stringify({
-        email: credentials.email,
-        password: credentials.password,
-      }),
+    const response = await apiClient.post<LoginResponse>("/llu/auth/login", {
+      email: credentials.email,
+      password: credentials.password,
     });
 
-    if (!response.ok) {
-      throw new Error(`Authentication failed: ${response.statusText}`);
-    }
-
-    const loginResponse = (await response.json()) as {
-      data?: {
-        authTicket?: { token?: string };
-        user?: { id?: string };
-      };
-    };
+    const loginResponse = response.data;
     const jwtToken = loginResponse?.data?.authTicket?.token;
     const accountId = loginResponse?.data?.user?.id;
 
@@ -54,23 +54,17 @@ class LibreViewAPI {
     const accountIdHash = await this.sha256(accountId);
 
     // Retrieve patientId
-    const connectionsResponse = await fetch(`${API_BASE_URL}/llu/connections`, {
-      headers: {
-        ...HEADERS,
-        authorization: `Bearer ${jwtToken}`,
-        "account-id": accountIdHash,
+    const connectionsResponse = await apiClient.get<ConnectionsResponse>(
+      "/llu/connections",
+      {
+        headers: {
+          authorization: `Bearer ${jwtToken}`,
+          "account-id": accountIdHash,
+        },
       },
-    });
+    );
 
-    if (!connectionsResponse.ok) {
-      throw new Error(
-        `Failed to get connections: ${connectionsResponse.statusText}`,
-      );
-    }
-
-    const connectionsData = (await connectionsResponse.json()) as {
-      data?: Array<{ patientId?: string }>;
-    };
+    const connectionsData = connectionsResponse.data;
     const patientId = connectionsData?.data?.[0]?.patientId;
 
     if (!patientId) throw new Error("No patient ID found");
@@ -98,35 +92,32 @@ class LibreViewAPI {
       throw new Error("Authentication required");
     }
 
-    const response = await fetch(
-      `${API_BASE_URL}/llu/connections/${this.auth.patientId}/graph`,
-      {
-        headers: {
-          ...HEADERS,
-          authorization: `Bearer ${this.auth.jwtToken}`,
-          "account-id": this.auth.accountIdHash,
-        },
-      },
-    );
+    let graphResponse: GraphResponse;
 
-    if (!response.ok) {
+    try {
+      const response = await apiClient.get<GraphResponse>(
+        `/llu/connections/${this.auth.patientId}/graph`,
+        {
+          headers: {
+            authorization: `Bearer ${this.auth.jwtToken}`,
+            "account-id": this.auth.accountIdHash,
+          },
+        },
+      );
+
+      graphResponse = response.data;
+    } catch (error) {
       // Try to re-authenticate once on failure
-      if (response.status === 401) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
         this.auth = null;
         await this.authenticate();
         return this.fetchGlucoseData();
       }
-      throw new Error(`Failed to fetch glucose data: ${response.statusText}`);
+      throw new Error(
+        `Failed to fetch glucose data: ${axios.isAxiosError(error) ? error.message : "Unknown error"}`,
+      );
     }
 
-    const graphResponse = (await response.json()) as {
-      data?: {
-        graphData?: GlucoseData[];
-        connection?: {
-          glucoseMeasurement?: { Value?: number };
-        };
-      };
-    };
     const currentMeasurementValue =
       graphResponse?.data?.connection?.glucoseMeasurement?.Value;
 

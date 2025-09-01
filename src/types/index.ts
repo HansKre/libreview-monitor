@@ -18,3 +18,23 @@ export interface ApiResponse {
   accountIdHash: string;
   patientId: string;
 }
+
+export interface LoginResponse {
+  data?: {
+    authTicket?: { token?: string };
+    user?: { id?: string };
+  };
+}
+
+export interface ConnectionsResponse {
+  data?: Array<{ patientId?: string }>;
+}
+
+export interface GraphResponse {
+  data?: {
+    graphData?: GlucoseData[];
+    connection?: {
+      glucoseMeasurement?: { Value?: number };
+    };
+  };
+}
