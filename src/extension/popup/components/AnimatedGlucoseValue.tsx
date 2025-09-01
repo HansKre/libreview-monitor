@@ -27,29 +27,24 @@ export const AnimatedGlucoseValue: React.FC<AnimatedGlucoseValueProps> = ({
         color: value ? (isStale ? "#808080" : status?.color) : "#666",
         lineHeight: "1",
         marginBottom: "-2px",
+        cursor: "pointer",
+        userSelect: "none",
       }}
+      onClick={handleDigitsClick}
     >
       {value ? (
-        <div
-          onClick={handleDigitsClick}
-          style={{
-            cursor: "pointer",
-            userSelect: "none",
+        <AnimatedCounter
+          key={animationKey}
+          value={value}
+          fontSize="52px"
+          decimalPrecision={0}
+          color={isStale ? "#808080" : status?.color || "#666"}
+          incrementColor={status?.color || "#666"}
+          decrementColor={status?.color || "#666"}
+          containerStyles={{
+            fontFamily: "monospace",
           }}
-        >
-          <AnimatedCounter
-            key={animationKey}
-            value={value}
-            fontSize="52px"
-            decimalPrecision={0}
-            color={isStale ? "#808080" : status?.color || "#666"}
-            incrementColor={status?.color || "#666"}
-            decrementColor={status?.color || "#666"}
-            containerStyles={{
-              fontFamily: "monospace",
-            }}
-          />
-        </div>
+        />
       ) : (
         "--"
       )}
