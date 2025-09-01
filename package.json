@@ -10,7 +10,8 @@
     "prebuild": "npm run clean",
     "build": "webpack --config webpack.config.js",
     "watch": "webpack --config webpack.config.js --mode development --watch",
-    "release": "npm run build && zip -r dist.zip dist"
+    "release": "npm run build && zip -r dist.zip dist",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
@@ -31,8 +32,16 @@
     "@typescript-eslint/parser": "^8.41.0",
     "copy-webpack-plugin": "^13.0.1",
     "eslint": "^9.34.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
     "ts-loader": "^9.5.4",
     "webpack": "^5.101.3",
     "webpack-cli": "^6.0.1"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "git add"
+    ]
   }
 }
