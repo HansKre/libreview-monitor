@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "LibreView Glucose Monitor",
+  "name": "LibreView Glucose Monitor for FreeStyle Libre",
   "version": "1.0.0",
   "description": "Real-time glucose monitoring for FreeStyle Libre users. Interactive charts with trend projections and dynamic browser icons.",
   "homepage_url": "https://github.com/HansKre/libreview-monitor",
