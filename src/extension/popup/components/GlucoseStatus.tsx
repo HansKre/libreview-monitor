@@ -1,6 +1,6 @@
 import React from "react";
-import { getGlucoseStatus } from "../utils/glucoseUtils";
 import { GLUCOSE_COLORS } from "../config/glucoseConfig";
+import { getGlucoseStatus } from "../utils/glucoseUtils";
 
 interface GlucoseStatusProps {
   value?: number;
@@ -23,7 +23,7 @@ export const GlucoseStatus: React.FC<GlucoseStatusProps> = ({
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        padding: "0 16px 20px",
+        padding: "0px 0px 20px 16px",
         background: "white",
         marginBottom: "0",
       }}
