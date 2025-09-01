@@ -85,12 +85,12 @@ export const CHART_STYLES = {
 // Animation configuration
 export const ANIMATION_CONFIG = {
   actualLine: {
-    begin: 0,
-    duration: 1500,
+    begin: 200,
+    duration: 650,
   },
   projectedLines: {
     begin: 800,
-    duration: 500,
+    duration: 250,
   },
   referenceArea: {
     delay: 2500,
