@@ -3,12 +3,12 @@
 
 // Color constants for glucose zones
 export const GLUCOSE_COLORS = {
-  VERY_LOW: '#8B0000',    // Dark Red
-  LOW: '#f44336',         // Red
-  NORMAL: '#4caf50',      // Green
-  ELEVATED: '#ff9800',    // Orange
-  HIGH: '#f44336',        // Red
-  VERY_HIGH: '#8B0000',   // Dark Red
+  VERY_LOW: "#8B0000", // Dark Red
+  LOW: "#f44336", // Red
+  NORMAL: "#4caf50", // Green
+  ELEVATED: "#ff9800", // Orange
+  HIGH: "#f44336", // Red
+  VERY_HIGH: "#8B0000", // Dark Red
 } as const;
 
 // Glucose range thresholds
@@ -26,17 +26,17 @@ export const REFERENCE_LINES = {
   VERY_LOW_THRESHOLD: {
     value: 70,
     color: GLUCOSE_COLORS.VERY_LOW,
-    label: 'Very Low',
+    label: "Very Low",
   },
   HIGH_THRESHOLD: {
     value: 190,
     color: GLUCOSE_COLORS.HIGH,
-    label: 'High',
+    label: "High",
   },
   VERY_HIGH_THRESHOLD: {
     value: 250,
     color: GLUCOSE_COLORS.VERY_HIGH,
-    label: 'Very High',
+    label: "Very High",
   },
 } as const;
 
@@ -47,7 +47,7 @@ export const REFERENCE_AREAS = {
     y2: GLUCOSE_RANGES.NORMAL.max,
     fill: GLUCOSE_COLORS.NORMAL,
     fillOpacity: 0.2,
-    label: 'Normal Range',
+    label: "Normal Range",
   },
 } as const;
 
@@ -60,21 +60,22 @@ export const Y_AXIS_CONFIG = {
 // Chart styling configuration (theme-aware colors will be handled by theme context)
 export const CHART_STYLES = {
   grid: {
-    strokeDasharray: '3 3',
+    strokeDasharray: "3 3",
     // stroke color will be set by theme context
   },
   axis: {
     // stroke color will be set by theme context
     fontSize: 12,
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontFamily:
+      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   },
   referenceLine: {
-    strokeDasharray: '2 2',
+    strokeDasharray: "2 2",
     strokeWidth: 1,
     strokeOpacity: 0.5,
   },
   separatorLine: {
-    strokeDasharray: '3 3',
+    strokeDasharray: "3 3",
     strokeWidth: 1,
     strokeOpacity: 0.6,
     // color will be set by theme context
@@ -88,8 +89,8 @@ export const ANIMATION_CONFIG = {
     duration: 1500,
   },
   projectedLines: {
-    begin: 1500,
-    duration: 1000,
+    begin: 800,
+    duration: 500,
   },
   referenceArea: {
     delay: 2500,
@@ -99,22 +100,22 @@ export const ANIMATION_CONFIG = {
 
 // Status labels for different glucose ranges
 export const GLUCOSE_STATUS_LABELS = {
-  VERY_LOW: 'VERY LOW',
-  LOW: 'LOW', 
-  NORMAL: 'NORMAL',
-  ELEVATED: 'ELEVATED',
-  HIGH: 'HIGH',
-  VERY_HIGH: 'VERY HIGH',
+  VERY_LOW: "VERY LOW",
+  LOW: "LOW",
+  NORMAL: "NORMAL",
+  ELEVATED: "ELEVATED",
+  HIGH: "HIGH",
+  VERY_HIGH: "VERY HIGH",
 } as const;
 
 // Utility functions
 export const getGlucoseZone = (value: number): keyof typeof GLUCOSE_RANGES => {
-  if (value < GLUCOSE_RANGES.LOW.min) return 'VERY_LOW';
-  if (value <= GLUCOSE_RANGES.LOW.max) return 'LOW';
-  if (value <= GLUCOSE_RANGES.NORMAL.max) return 'NORMAL';
-  if (value <= GLUCOSE_RANGES.ELEVATED.max) return 'ELEVATED';
-  if (value <= GLUCOSE_RANGES.HIGH.max) return 'HIGH';
-  return 'VERY_HIGH';
+  if (value < GLUCOSE_RANGES.LOW.min) return "VERY_LOW";
+  if (value <= GLUCOSE_RANGES.LOW.max) return "LOW";
+  if (value <= GLUCOSE_RANGES.NORMAL.max) return "NORMAL";
+  if (value <= GLUCOSE_RANGES.ELEVATED.max) return "ELEVATED";
+  if (value <= GLUCOSE_RANGES.HIGH.max) return "HIGH";
+  return "VERY_HIGH";
 };
 
 export const getGlucoseColorFromConfig = (value: number): string => {
