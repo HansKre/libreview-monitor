@@ -40,7 +40,14 @@ export const useGlucoseData = (currentTab: string) => {
     try {
       const response = await sendMessage({ type: "GET_GLUCOSE_DATA" });
       if (response.success && response.data) {
-        setGlucoseData(response.data);
+        // Clear lastError if we have fresh data (not stale)
+        const dataWithClearedError = {
+          ...response.data,
+          lastError: response.data.isStale
+            ? response.data.lastError
+            : undefined,
+        };
+        setGlucoseData(dataWithClearedError);
         setError(null);
       } else {
         setError(
@@ -62,7 +69,14 @@ export const useGlucoseData = (currentTab: string) => {
     try {
       const response = await sendMessage({ type: "FORCE_UPDATE" });
       if (response.success && response.data) {
-        setGlucoseData(response.data);
+        // Clear lastError if we have fresh data (not stale)
+        const dataWithClearedError = {
+          ...response.data,
+          lastError: response.data.isStale
+            ? response.data.lastError
+            : undefined,
+        };
+        setGlucoseData(dataWithClearedError);
         setError(null);
       } else {
         setError(response.error || "Failed to update glucose data");
