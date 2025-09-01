@@ -34,14 +34,17 @@
     "eslint": "^9.34.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.5",
+    "prettier": "^3.6.2",
     "ts-loader": "^9.5.4",
     "webpack": "^5.101.3",
     "webpack-cli": "^6.0.1"
   },
   "lint-staged": {
-    "src/**/*.{ts,tsx}": [
-      "eslint --fix",
-      "git add"
+    "*.{js,ts,tsx,d.ts,json,md}": [
+      "prettier --write"
+    ],
+    "*.{js,ts,tsx,d.ts}": [
+      "eslint --fix --no-warn-ignored --max-warnings=0"
     ]
   }
 }
