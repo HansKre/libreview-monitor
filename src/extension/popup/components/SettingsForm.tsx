@@ -1,4 +1,5 @@
 import React from "react";
+import { ThemeToggle } from "./ThemeToggle";
 
 interface SettingsFormProps {
   credentials: { email: string; password: string };
@@ -19,6 +20,8 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
         Enter your LibreView credentials to enable automatic glucose monitoring.
         Your credentials are stored securely in Chrome's local storage.
       </div>
+
+      <ThemeToggle />
 
       <form onSubmit={onSubmit}>
         <div className="form-group">

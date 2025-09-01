@@ -5,6 +5,7 @@ import { useCredentials } from './hooks/useCredentials';
 import { GlucoseStatus } from './components/GlucoseStatus';
 import { GlucoseChart } from './components/GlucoseChart';
 import { SettingsForm } from './components/SettingsForm';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 const PopupApp: React.FC = () => {
   const [currentTab, setCurrentTab] = useState('graph');
@@ -69,5 +70,9 @@ const PopupApp: React.FC = () => {
 const container = document.getElementById('root');
 if (container) {
   const root = createRoot(container);
-  root.render(<PopupApp />);
+  root.render(
+    <ThemeProvider>
+      <PopupApp />
+    </ThemeProvider>
+  );
 }

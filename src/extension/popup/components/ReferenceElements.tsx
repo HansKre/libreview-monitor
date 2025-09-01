@@ -4,6 +4,8 @@ import type { GlucoseData } from "../../../types";
 import {
   CHART_STYLES,
 } from "../config/glucoseConfig";
+import { useTheme } from "../contexts/ThemeContext";
+import { getThemeAwareChartStyles } from "../config/themeConfig";
 
 interface ReferenceElementsProps {
   data: GlucoseData[];
@@ -12,6 +14,9 @@ interface ReferenceElementsProps {
 export const ReferenceElements: React.FC<ReferenceElementsProps> = ({
   data,
 }) => {
+  const { resolvedTheme } = useTheme();
+  const themeChartStyles = getThemeAwareChartStyles(resolvedTheme);
+  
   const lastDataPoint = data[data.length - 1];
   const referenceValues = [350, 300, 250, 200, 150, 100, 50];
 
@@ -22,7 +27,7 @@ export const ReferenceElements: React.FC<ReferenceElementsProps> = ({
         <ReferenceLine
           key={value}
           y={value}
-          stroke="#ccc"
+          stroke={themeChartStyles.axis.stroke}
           strokeDasharray={CHART_STYLES.referenceLine.strokeDasharray}
           strokeWidth={CHART_STYLES.referenceLine.strokeWidth}
           strokeOpacity={CHART_STYLES.referenceLine.strokeOpacity}
@@ -46,7 +51,7 @@ export const ReferenceElements: React.FC<ReferenceElementsProps> = ({
           minute: "2-digit",
           hour12: false,
         })}
-        stroke={CHART_STYLES.separatorLine.color}
+        stroke={themeChartStyles.separatorLine.color}
         strokeDasharray={CHART_STYLES.separatorLine.strokeDasharray}
         strokeWidth={CHART_STYLES.separatorLine.strokeWidth}
         strokeOpacity={CHART_STYLES.separatorLine.strokeOpacity}

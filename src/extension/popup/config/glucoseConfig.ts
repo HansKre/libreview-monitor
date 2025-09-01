@@ -57,14 +57,14 @@ export const Y_AXIS_CONFIG = {
   ticks: [0, 50, 100, 150, 200, 250, 300, 350],
 } as const;
 
-// Chart styling configuration
+// Chart styling configuration (theme-aware colors will be handled by theme context)
 export const CHART_STYLES = {
   grid: {
     strokeDasharray: '3 3',
-    stroke: '#f0f0f0',
+    // stroke color will be set by theme context
   },
   axis: {
-    stroke: '#ccc',
+    // stroke color will be set by theme context
     fontSize: 12,
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   },
@@ -77,7 +77,7 @@ export const CHART_STYLES = {
     strokeDasharray: '3 3',
     strokeWidth: 1,
     strokeOpacity: 0.6,
-    color: '#999',
+    // color will be set by theme context
   },
 } as const;
 

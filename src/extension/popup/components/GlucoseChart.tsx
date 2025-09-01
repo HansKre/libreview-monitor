@@ -14,11 +14,13 @@ import { ChartTitle } from "./ChartTitle";
 import { GlucoseLines } from "./GlucoseLines";
 import { ReferenceElements } from "./ReferenceElements";
 import { ChartLegend } from "./ChartLegend";
-import { formatTooltipValue, formatTooltipLabel, tooltipContentStyle } from "../utils/tooltipUtils";
+import { formatTooltipValue, formatTooltipLabel } from "../utils/tooltipUtils";
 import {
   Y_AXIS_CONFIG,
   CHART_STYLES,
 } from "../config/glucoseConfig";
+import { useTheme } from "../contexts/ThemeContext";
+import { getThemeAwareChartStyles } from "../config/themeConfig";
 
 interface GlucoseChartProps {
   data: GlucoseData[];
@@ -33,6 +35,9 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
   error,
   loading,
 }) => {
+  const { resolvedTheme, themeColors } = useTheme();
+  const themeChartStyles = getThemeAwareChartStyles(resolvedTheme);
+
   if (error || loading || !data || data.length === 0) {
     return (
       <ChartLoadingStates
@@ -44,14 +49,23 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
   }
 
   const chartData = formatChartData(data);
+  
+  // Create theme-aware tooltip style
+  const tooltipContentStyle = {
+    backgroundColor: themeColors.background.primary,
+    border: `1px solid ${themeColors.border.primary}`,
+    borderRadius: "4px",
+    fontFamily: themeChartStyles.axis.fontFamily,
+    color: themeColors.text.primary,
+  };
 
   return (
-    <div style={{ background: "white", padding: "0 16px 16px" }}>
+    <div style={{ background: themeColors.background.primary, padding: "0 16px 16px" }}>
       <ChartTitle />
 
       <div
         style={{
-          background: "white",
+          background: themeColors.background.primary,
           borderRadius: "0",
           padding: "0",
           margin: "0px -16px",
@@ -60,32 +74,34 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
         <ResponsiveContainer width="100%" height={280}>
           <LineChart data={chartData}>
             <CartesianGrid 
-              strokeDasharray={CHART_STYLES.grid.strokeDasharray}
-              stroke={CHART_STYLES.grid.stroke}
+              strokeDasharray={themeChartStyles.grid.strokeDasharray}
+              stroke={themeChartStyles.grid.stroke}
             />
             <XAxis
               dataKey="time"
               interval="preserveStartEnd"
               tick={{
-                fontSize: CHART_STYLES.axis.fontSize,
-                fontFamily: CHART_STYLES.axis.fontFamily,
+                fontSize: themeChartStyles.axis.fontSize,
+                fontFamily: themeChartStyles.axis.fontFamily,
+                fill: themeColors.text.secondary,
               }}
-              axisLine={{ stroke: CHART_STYLES.axis.stroke }}
+              axisLine={{ stroke: themeChartStyles.axis.stroke }}
             />
             <YAxis
               domain={Y_AXIS_CONFIG.domain}
               ticks={Y_AXIS_CONFIG.ticks}
               tick={{
-                fontSize: CHART_STYLES.axis.fontSize,
-                fontFamily: CHART_STYLES.axis.fontFamily,
+                fontSize: themeChartStyles.axis.fontSize,
+                fontFamily: themeChartStyles.axis.fontFamily,
+                fill: themeColors.text.secondary,
               }}
-              axisLine={{ stroke: CHART_STYLES.axis.stroke }}
+              axisLine={{ stroke: themeChartStyles.axis.stroke }}
               width={40}
               label={{ 
                 value: 'mg/dL', 
                 angle: -90, 
                 position: 'insideLeft',
-                style: { textAnchor: 'middle' }
+                style: { textAnchor: 'middle', fill: themeColors.text.secondary }
               }}
             />
             <Tooltip

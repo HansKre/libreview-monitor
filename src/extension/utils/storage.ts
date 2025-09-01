@@ -8,6 +8,7 @@ export interface StoredData {
   lastGlucoseValue?: number;
   lastUpdate?: number;
   glucoseData?: any[];
+  theme?: 'light' | 'dark' | 'system';
 }
 
 export class ChromeStorage {

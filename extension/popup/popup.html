@@ -11,12 +11,39 @@
         box-sizing: border-box;
       }
 
+      :root {
+        /* Default light theme variables */
+        --bg-primary: #ffffff;
+        --bg-secondary: #f5f5f5;
+        --bg-header: #f5f0f0;
+        --bg-info: #e3f2fd;
+        --bg-success: #e8f5e8;
+        --bg-error: #ffebee;
+        --text-primary: #333333;
+        --text-secondary: #666666;
+        --text-info: #1565c0;
+        --text-success: #2e7d2e;
+        --text-error: #f44336;
+        --border-primary: #e0e0e0;
+        --border-secondary: #ddd;
+        --border-focus: #2196f3;
+        --interactive-primary: #2196f3;
+        --interactive-primary-hover: #1976d2;
+        --interactive-disabled: #cccccc;
+        --interactive-hover: #e8e8e8;
+        --chart-grid: #f0f0f0;
+        --chart-axis: #cccccc;
+        --chart-separator: #999999;
+      }
+
       body {
         width: 400px;
         height: 500px;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           sans-serif;
-        background: #f5f5f5;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
 
       .container {
@@ -26,12 +53,13 @@
       }
 
       .header {
-        background: #f5f0f0;
-        color: #333;
+        background: var(--bg-header);
+        color: var(--text-primary);
         padding: 16px;
         text-align: center;
         box-shadow: none;
-        border-bottom: 1px solid #e0e0e0;
+        border-bottom: 1px solid var(--border-primary);
+        transition: background-color 0.3s ease;
       }
 
       .header h1 {
@@ -42,8 +70,9 @@
 
       .tabs {
         display: flex;
-        background: white;
-        border-bottom: 1px solid #e0e0e0;
+        background: var(--bg-primary);
+        border-bottom: 1px solid var(--border-primary);
+        transition: background-color 0.3s ease;
       }
 
       .tab {
@@ -55,24 +84,25 @@
         background: transparent;
         font-size: 14px;
         font-weight: 500;
-        color: #666;
+        color: var(--text-secondary);
         transition: all 0.3s ease;
       }
 
       .tab:hover {
-        background: #e8e8e8;
+        background: var(--interactive-hover);
       }
 
       .tab.active {
-        color: #333;
-        border-bottom: 2px solid #333;
+        color: var(--text-primary);
+        border-bottom: 2px solid var(--text-primary);
         font-weight: 600;
       }
 
       .tab-content {
         flex: 1;
         overflow: auto;
-        background: white;
+        background: var(--bg-primary);
+        transition: background-color 0.3s ease;
       }
 
       .tab-pane {
@@ -88,16 +118,17 @@
       .loading {
         text-align: center;
         padding: 40px;
-        color: #666;
+        color: var(--text-secondary);
       }
 
       .error {
         text-align: center;
         padding: 20px;
-        color: #f44336;
-        background: #ffebee;
+        color: var(--text-error);
+        background: var(--bg-error);
         border-radius: 8px;
         margin: 16px;
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
 
       /* Settings Tab Styles */
@@ -109,26 +140,28 @@
         display: block;
         margin-bottom: 6px;
         font-weight: 500;
-        color: #333;
+        color: var(--text-primary);
       }
 
       .form-group input {
         width: 100%;
         padding: 10px 12px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-secondary);
         border-radius: 4px;
         font-size: 14px;
-        transition: border-color 0.3s ease;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
       }
 
       .form-group input:focus {
         outline: none;
-        border-color: #2196f3;
+        border-color: var(--border-focus);
         box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
       }
 
       .btn {
-        background: #2196f3;
+        background: var(--interactive-primary);
         color: white;
         border: none;
         padding: 10px 20px;
@@ -141,31 +174,91 @@
       }
 
       .btn:hover {
-        background: #1976d2;
+        background: var(--interactive-primary-hover);
       }
 
       .btn:disabled {
-        background: #ccc;
+        background: var(--interactive-disabled);
         cursor: not-allowed;
       }
 
       .success-message {
-        background: #e8f5e8;
-        color: #2e7d2e;
+        background: var(--bg-success);
+        color: var(--text-success);
         padding: 10px;
         border-radius: 4px;
         margin-top: 12px;
         font-size: 14px;
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
 
       .settings-info {
-        background: #e3f2fd;
-        color: #1565c0;
+        background: var(--bg-info);
+        color: var(--text-info);
         padding: 12px;
         border-radius: 4px;
         margin-bottom: 16px;
         font-size: 13px;
         line-height: 1.4;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      /* Theme Toggle Styles */
+      .theme-toggle-container {
+        margin-bottom: 20px;
+      }
+
+      .theme-toggle-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--text-primary);
+        font-size: 14px;
+      }
+
+      .theme-toggle-options {
+        display: flex;
+        gap: 8px;
+        background: var(--bg-secondary);
+        padding: 4px;
+        border-radius: 8px;
+        border: 1px solid var(--border-primary);
+      }
+
+      .theme-toggle-option {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 4px;
+        background: transparent;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 13px;
+      }
+
+      .theme-toggle-option:hover {
+        background: var(--interactive-hover);
+        color: var(--text-primary);
+      }
+
+      .theme-toggle-option.active {
+        background: var(--interactive-primary);
+        color: white;
+        font-weight: 500;
+      }
+
+      .theme-icon {
+        width: 16px;
+        height: 16px;
+        stroke-width: 2;
+      }
+
+      .theme-label {
+        font-size: 12px;
       }
     </style>
   </head>
