@@ -86,7 +86,7 @@ export const calculateProjection = (
     let projectedValue = slope * futureX + intercept;
 
     // Add some bounds to prevent unrealistic projections and round to integer
-    projectedValue = Math.round(Math.max(40, Math.min(400, projectedValue)));
+    projectedValue = Math.round(Math.max(0, Math.min(400, projectedValue)));
 
     projectionPoints.push({
       timestamp: futureTimestamp,
@@ -160,7 +160,7 @@ export const calculateTimeAwareProjection = (
     let projectedValue = slope * futureMinutes + intercept;
 
     // Add some bounds to prevent unrealistic projections and round to integer
-    projectedValue = Math.round(Math.max(40, Math.min(400, projectedValue)));
+    projectedValue = Math.round(Math.max(0, Math.min(400, projectedValue)));
 
     projectionPoints.push({
       timestamp: futureTimestamp,
