@@ -4,7 +4,7 @@
 // Color constants for glucose zones
 export const GLUCOSE_COLORS = {
   VERY_LOW: "#8B0000", // Dark Red
-  LOW: "#f44336", // Red
+  LOW: "#ff9800", // Orange
   NORMAL: "#4caf50", // Green
   ELEVATED: "#ff9800", // Orange
   HIGH: "#f44336", // Red
