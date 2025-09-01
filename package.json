@@ -6,8 +6,11 @@
   "scripts": {
     "lint": "eslint src/**/*.{ts,tsx}",
     "lint:fix": "eslint src/**/*.{ts,tsx} --fix",
-    "build:extension": "webpack --config webpack.config.js",
-    "build:extension:dev": "webpack --config webpack.config.js --mode development --watch"
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean",
+    "build": "webpack --config webpack.config.js",
+    "watch": "webpack --config webpack.config.js --mode development --watch",
+    "release": "npm run build && zip -r dist.zip dist"
   },
   "keywords": [],
   "author": "",
