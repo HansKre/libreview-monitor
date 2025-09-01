@@ -95,6 +95,12 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
               }}
               axisLine={{ stroke: CHART_STYLES.axis.stroke }}
               width={40}
+              label={{ 
+                value: 'mg/dL', 
+                angle: -90, 
+                position: 'insideLeft',
+                style: { textAnchor: 'middle' }
+              }}
             />
             <Tooltip
               formatter={(value: number, name: string) => {

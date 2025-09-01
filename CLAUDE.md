@@ -35,6 +35,7 @@ npm run lint:fix
 
 - `background/background.ts` - Service worker handling API calls, data persistence, alarm scheduling, and dynamic icon updates
 - `popup/popup.tsx` - React-based popup interface with Recharts visualization and 60-minute glucose projections
+- `popup/config/glucoseConfig.ts` - Centralized configuration for glucose ranges, colors, chart styling, and animations
 - `utils/storage.ts` - Chrome Storage API wrapper for secure credential management
 - `utils/iconGenerator.ts` - Dynamic browser icon generation with glucose-based color coding
 
@@ -94,13 +95,26 @@ LibreView API endpoints:
 - Glucose data: GET `/llu/connections/{patientId}/graph`
 - Automatic token refresh on expiry
 
-### Glucose Color Zones
+### Glucose Configuration System
 
-The application implements medical glucose ranges:
+**Centralized Configuration** (`src/extension/popup/config/glucoseConfig.ts`):
 
-- < 70 mg/dL: Very Low (Dark Red)
-- 70-99 mg/dL: Low (Red)  
-- 100-155 mg/dL: Normal (Green)
-- 156-189 mg/dL: Elevated (Orange)
-- 190-249 mg/dL: High (Red)
-- 250+ mg/dL: Very High (Dark Red)
+The application uses a centralized configuration system that defines:
+
+- **Glucose Color Zones**: Named color constants (GLUCOSE_COLORS) for consistent styling across all components
+- **Glucose Ranges**: Threshold definitions (GLUCOSE_RANGES) for each medical zone
+- **Reference Lines & Areas**: Chart configuration for visual glucose range indicators
+- **Y-Axis Configuration**: Domain, ticks, and styling for chart axes
+- **Chart Styling**: Consistent fonts, colors, and visual properties
+- **Animation Timing**: Centralized animation durations and delays
+
+**Medical Glucose Ranges**:
+
+- < 70 mg/dL: Very Low (Dark Red #8B0000)
+- 70-99 mg/dL: Low (Red #f44336)  
+- 100-155 mg/dL: Normal (Green #4caf50)
+- 156-189 mg/dL: Elevated (Orange #ff9800)
+- 190-249 mg/dL: High (Red #f44336)
+- 250+ mg/dL: Very High (Dark Red #8B0000)
+
+**Usage**: All components (charts, icons, status displays) reference the centralized config to ensure consistent glucose zone colors, ranges, and styling. The DelayedReferenceArea component uses config values for the normal range (100-155 mg/dL) visualization.
