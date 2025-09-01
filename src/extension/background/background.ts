@@ -13,7 +13,6 @@ const HEADERS = {
   version: "4.13.0",
 };
 
-
 class LibreViewAPI {
   private auth: ApiResponse | null = null;
 
@@ -22,7 +21,7 @@ class LibreViewAPI {
 
     if (!credentials.email || !credentials.password) {
       throw new Error(
-        "No credentials stored. Please configure in extension popup."
+        "No credentials stored. Please configure in extension popup.",
       );
     }
 
@@ -39,7 +38,12 @@ class LibreViewAPI {
       throw new Error(`Authentication failed: ${response.statusText}`);
     }
 
-    const loginResponse = (await response.json()) as any;
+    const loginResponse = (await response.json()) as {
+      data?: {
+        authTicket?: { token?: string };
+        user?: { id?: string };
+      };
+    };
     const jwtToken = loginResponse?.data?.authTicket?.token;
     const accountId = loginResponse?.data?.user?.id;
 
@@ -60,12 +64,14 @@ class LibreViewAPI {
 
     if (!connectionsResponse.ok) {
       throw new Error(
-        `Failed to get connections: ${connectionsResponse.statusText}`
+        `Failed to get connections: ${connectionsResponse.statusText}`,
       );
     }
 
-    const connectionsData = (await connectionsResponse.json()) as any;
-    const patientId = connectionsData?.data[0]?.patientId;
+    const connectionsData = (await connectionsResponse.json()) as {
+      data?: Array<{ patientId?: string }>;
+    };
+    const patientId = connectionsData?.data?.[0]?.patientId;
 
     if (!patientId) throw new Error("No patient ID found");
 
@@ -80,8 +86,10 @@ class LibreViewAPI {
     return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 
-
-  async fetchGlucoseData(): Promise<{ data: GlucoseData[], currentMeasurementValue?: number }> {
+  async fetchGlucoseData(): Promise<{
+    data: GlucoseData[];
+    currentMeasurementValue?: number;
+  }> {
     if (!this.auth) {
       await this.authenticate();
     }
@@ -98,7 +106,7 @@ class LibreViewAPI {
           authorization: `Bearer ${this.auth.jwtToken}`,
           "account-id": this.auth.accountIdHash,
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -111,12 +119,20 @@ class LibreViewAPI {
       throw new Error(`Failed to fetch glucose data: ${response.statusText}`);
     }
 
-    const graphResponse = (await response.json()) as any;
-    const currentMeasurementValue = graphResponse?.data?.connection?.glucoseMeasurement?.Value;
-    
+    const graphResponse = (await response.json()) as {
+      data?: {
+        graphData?: GlucoseData[];
+        connection?: {
+          glucoseMeasurement?: { Value?: number };
+        };
+      };
+    };
+    const currentMeasurementValue =
+      graphResponse?.data?.connection?.glucoseMeasurement?.Value;
+
     return {
       data: graphResponse?.data?.graphData || [],
-      currentMeasurementValue
+      currentMeasurementValue,
     };
   }
 }
@@ -124,9 +140,8 @@ class LibreViewAPI {
 class BackgroundService {
   private api = new LibreViewAPI();
   private lastUpdateTime = 0;
-  private readonly UPDATE_INTERVAL_MS = 60000; // 1 minute
   private readonly MIN_UPDATE_INTERVAL_MS = 55000; // Minimum 55 seconds between updates
-  readonly ALARM_NAME = 'glucoseUpdate';
+  readonly ALARM_NAME = "glucoseUpdate";
 
   async initialize() {
     console.log("LibreView Extension Background Service Starting...");
@@ -161,16 +176,15 @@ class BackgroundService {
   private startPeriodicUpdates() {
     // Clear any existing alarm
     chrome.alarms.clear(this.ALARM_NAME);
-    
+
     // Create a repeating alarm for glucose updates (more reliable than setInterval in service workers)
     chrome.alarms.create(this.ALARM_NAME, {
       delayInMinutes: 1, // Start after 1 minute
-      periodInMinutes: 1 // Repeat every minute
+      periodInMinutes: 1, // Repeat every minute
     });
-    
+
     console.log("Created repeating alarm for glucose updates every 1 minute");
   }
-
 
   async updateGlucoseData() {
     try {
@@ -184,10 +198,10 @@ class BackgroundService {
       ) {
         console.log(
           `Rate limiting: Only ${Math.round(
-            timeSinceLastUpdate / 1000
+            timeSinceLastUpdate / 1000,
           )}s since last update, minimum ${
             this.MIN_UPDATE_INTERVAL_MS / 1000
-          }s required`
+          }s required`,
         );
         return;
       }
@@ -201,31 +215,59 @@ class BackgroundService {
 
       console.log(
         `Updating glucose data... (${Math.round(
-          timeSinceLastUpdate / 1000
-        )}s since last update)`
+          timeSinceLastUpdate / 1000,
+        )}s since last update)`,
       );
 
       const result = await this.api.fetchGlucoseData();
 
       if (result && result.data && result.data.length > 0) {
-        // Use currentMeasurementValue as the very latest value if available, 
+        // Use currentMeasurementValue as the very latest value if available,
         // otherwise fall back to the last item from graphData
-        const latestValue = result.currentMeasurementValue ?? result.data[result.data.length - 1].Value;
+        const latestValue =
+          result.currentMeasurementValue ??
+          result.data[result.data.length - 1].Value;
 
-        // Ensure graph data is consistent with current measurement
-        let processedData = [...result.data];
+        // Ensure graph data includes the current measurement if it's newer
+        const processedData = [...result.data];
         if (result.currentMeasurementValue && processedData.length > 0) {
-          // If we have a current measurement that's different from the last graph point,
-          // update the last graph point to match the current measurement for consistency
           const lastDataPoint = processedData[processedData.length - 1];
+          const currentTime = new Date();
+          const lastDataTime = new Date(lastDataPoint.Timestamp);
+
+          // If current measurement is different from the last graph point,
+          // add it as a new data point (don't overwrite historical data)
           if (lastDataPoint.Value !== result.currentMeasurementValue) {
-            // Update the most recent data point to match the current measurement
-            processedData[processedData.length - 1] = {
-              ...lastDataPoint,
-              Value: result.currentMeasurementValue,
-              Timestamp: new Date().toISOString() // Use current time for the most recent measurement
-            };
-            console.log(`📊 Synchronized graph data with current measurement: ${result.currentMeasurementValue} mg/dL`);
+            // Add current measurement as a new data point if it's reasonably newer
+            const timeDifferenceMinutes =
+              (currentTime.getTime() - lastDataTime.getTime()) / (1000 * 60);
+
+            if (timeDifferenceMinutes >= 1) {
+              // Add new data point for current measurement
+              const newDataPoint: GlucoseData = {
+                ...lastDataPoint, // Copy all properties from last data point
+                Value: result.currentMeasurementValue,
+                ValueInMgPerDl: result.currentMeasurementValue,
+                Timestamp: currentTime.toISOString(),
+                FactoryTimestamp: currentTime.toISOString(),
+              };
+              processedData.push(newDataPoint);
+              console.log(
+                `📊 Added current measurement as new data point: ${result.currentMeasurementValue} mg/dL at ${currentTime.toLocaleTimeString()}`,
+              );
+            } else {
+              // If time difference is small, update the last point to avoid clustering
+              processedData[processedData.length - 1] = {
+                ...lastDataPoint,
+                Value: result.currentMeasurementValue,
+                ValueInMgPerDl: result.currentMeasurementValue,
+                Timestamp: currentTime.toISOString(),
+                FactoryTimestamp: currentTime.toISOString(),
+              };
+              console.log(
+                `📊 Updated last data point with current measurement: ${result.currentMeasurementValue} mg/dL`,
+              );
+            }
           }
         }
 
@@ -239,7 +281,7 @@ class BackgroundService {
         this.lastUpdateTime = now;
 
         console.log(
-          `✓ Updated glucose value: ${latestValue} mg/dL at ${new Date().toLocaleTimeString()}${result.currentMeasurementValue ? ' (from current measurement)' : ' (from graph data)'}`
+          `✓ Updated glucose value: ${latestValue} mg/dL at ${new Date().toLocaleTimeString()}${result.currentMeasurementValue ? " (from current measurement)" : " (from graph data)"}`,
         );
       } else {
         console.log("No glucose data received from API");
@@ -259,9 +301,15 @@ class BackgroundService {
   }
 
   async handleMessage(
-    message: any,
-    sender: chrome.runtime.MessageSender,
-    sendResponse: (response?: any) => void
+    message: {
+      type: string;
+      credentials?: { email: string; password: string };
+    },
+    sendResponse: (response?: {
+      success: boolean;
+      data?: unknown;
+      error?: string;
+    }) => void,
   ) {
     switch (message.type) {
       case "GET_GLUCOSE_DATA":
@@ -275,6 +323,9 @@ class BackgroundService {
 
       case "UPDATE_CREDENTIALS":
         try {
+          if (!message.credentials) {
+            throw new Error("No credentials provided");
+          }
           await ChromeStorage.setCredentials(message.credentials);
           // Clear auth to force re-authentication with new credentials
           this.api = new LibreViewAPI();
@@ -319,8 +370,8 @@ chrome.runtime.onStartup.addListener(() => {
   backgroundService.initialize();
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  backgroundService.handleMessage(message, sender, sendResponse);
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  backgroundService.handleMessage(message, sendResponse);
   return true; // Keep message channel open for async response
 });
 
@@ -337,7 +388,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 });
 
 // Handle service worker lifecycle
-self.addEventListener("activate", (event) => {
+self.addEventListener("activate", () => {
   console.log("LibreView Extension Service Worker Activated");
   backgroundService.initialize();
 });

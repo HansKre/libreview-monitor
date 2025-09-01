@@ -12,20 +12,34 @@ LibreView Glucose Monitor is a Chrome Extension that provides real-time glucose 
 
 ```bash
 # Build Chrome extension for production
-npm run build:extension
+npm run build
 
 # Build extension with development mode and file watching
-npm run build:extension:dev
+npm run watch
 ```
 
 ### Code Quality
+
 ```bash
 # Lint TypeScript/TSX files
 npm run lint
 
 # Auto-fix linting issues
 npm run lint:fix
+
+# TypeScript type checking
+npx tsc --noEmit --project .
 ```
+
+### Development Workflow
+
+**IMPORTANT**: After every code change, automatically run both linting and type checking to ensure code quality:
+
+```bash
+npm run lint && npx tsc --noEmit --project .
+```
+
+Claude should proactively run these commands after making any code changes to catch and fix TypeScript errors, linting issues, and ensure code quality before proceeding.
 
 ## Architecture
 
@@ -46,20 +60,23 @@ npm run lint:fix
 ### Key Technical Decisions
 
 **Glucose Projection Algorithm**: Uses simple linear regression to predict glucose trends up to 60 minutes ahead. The algorithm:
+
 - Analyzes last 30 minutes of data for trend calculation
-- Applies conservative bounds (max glucose values 40-400 mg/dL)  
+- Applies conservative bounds (max glucose values 40-400 mg/dL)
 - Generates 5-minute interval projections
 - Uses linear trend analysis for predictable glucose forecasting
 
 **Chrome Extension Persistence**: Uses Chrome Alarms API instead of setInterval for reliable background data fetching every minute, ensuring persistence across browser sessions.
 
 **Icon Generation**: Real-time browser icon updates using OffscreenCanvas with glucose color zones:
+
 - Green (100-155): Normal range
-- Orange (156-189): Elevated  
+- Orange (156-189): Elevated
 - Red (70-99, 190-249): Low/High
 - Dark Red (<70, 250+): Very Low/Very High
 
 ### Data Flow
+
 1. Background service worker authenticates with LibreView API using stored credentials
 2. Fetches glucose data every minute via Chrome alarms
 3. Updates browser icon with current glucose value and appropriate color
@@ -91,7 +108,7 @@ npm run lint:fix
 
 LibreView API endpoints:
 
-- Authentication: POST `/llu/auth/login`  
+- Authentication: POST `/llu/auth/login`
 - Glucose data: GET `/llu/connections/{patientId}/graph`
 - Automatic token refresh on expiry
 
@@ -111,7 +128,7 @@ The application uses a centralized configuration system that defines:
 **Medical Glucose Ranges**:
 
 - < 70 mg/dL: Very Low (Dark Red #8B0000)
-- 70-99 mg/dL: Low (Red #f44336)  
+- 70-99 mg/dL: Low (Red #f44336)
 - 100-155 mg/dL: Normal (Green #4caf50)
 - 156-189 mg/dL: Elevated (Orange #ff9800)
 - 190-249 mg/dL: High (Red #f44336)

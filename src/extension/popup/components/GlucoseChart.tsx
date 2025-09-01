@@ -80,7 +80,17 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
               stroke={themeChartStyles.grid.stroke}
             />
             <XAxis
+              type="number"
               dataKey="time"
+              domain={["dataMin", "dataMax"]}
+              scale="time"
+              tickFormatter={(timestamp) => {
+                return new Date(timestamp).toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                });
+              }}
               interval="preserveStartEnd"
               tick={{
                 fontSize: themeChartStyles.axis.fontSize,
@@ -112,7 +122,25 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
             />
             <Tooltip
               formatter={formatTooltipValue}
-              labelFormatter={formatTooltipLabel}
+              labelFormatter={(label, payload) => {
+                // Use timeLabel from payload data if available, fallback to formatted timestamp
+                if (
+                  payload &&
+                  payload[0] &&
+                  payload[0].payload &&
+                  payload[0].payload.timeLabel
+                ) {
+                  return formatTooltipLabel(payload[0].payload.timeLabel);
+                }
+                // Fallback: format the timestamp if no timeLabel available
+                return formatTooltipLabel(
+                  new Date(label).toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  }),
+                );
+              }}
               contentStyle={tooltipContentStyle}
             />
 
