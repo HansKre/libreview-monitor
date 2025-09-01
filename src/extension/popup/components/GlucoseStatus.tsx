@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { AnimatedCounter } from "react-animated-counter";
 import { GLUCOSE_COLORS } from "../config/glucoseConfig";
 import { useTheme } from "../contexts/ThemeContext";
@@ -23,6 +23,11 @@ export const GlucoseStatus: React.FC<GlucoseStatusProps> = ({
 }) => {
   const { themeColors } = useTheme();
   const status = value ? getGlucoseStatus(value) : null;
+  const [animationKey, setAnimationKey] = useState(0);
+
+  const handleDigitsClick = () => {
+    setAnimationKey((prev) => prev + 1);
+  };
 
   return (
     <div
@@ -57,17 +62,26 @@ export const GlucoseStatus: React.FC<GlucoseStatusProps> = ({
             }}
           >
             {value ? (
-              <AnimatedCounter
-                value={value}
-                fontSize="52px"
-                decimalPrecision={0}
-                color={isStale ? "#808080" : status?.color || "#666"}
-                incrementColor={status?.color || "#666"}
-                decrementColor={status?.color || "#666"}
-                containerStyles={{
-                  fontFamily: "monospace",
+              <div
+                onClick={handleDigitsClick}
+                style={{
+                  cursor: "pointer",
+                  userSelect: "none",
                 }}
-              />
+              >
+                <AnimatedCounter
+                  key={animationKey}
+                  value={value}
+                  fontSize="52px"
+                  decimalPrecision={0}
+                  color={isStale ? "#808080" : status?.color || "#666"}
+                  incrementColor={status?.color || "#666"}
+                  decrementColor={status?.color || "#666"}
+                  containerStyles={{
+                    fontFamily: "monospace",
+                  }}
+                />
+              </div>
             ) : (
               "--"
             )}
