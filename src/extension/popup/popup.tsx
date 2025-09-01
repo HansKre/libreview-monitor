@@ -1,41 +1,51 @@
-import React, { useState } from 'react';
-import { createRoot } from 'react-dom/client';
-import { useGlucoseData } from './hooks/useGlucoseData';
-import { useCredentials } from './hooks/useCredentials';
-import { GlucoseStatus } from './components/GlucoseStatus';
-import { GlucoseChart } from './components/GlucoseChart';
-import { SettingsForm } from './components/SettingsForm';
-import { ThemeProvider } from './contexts/ThemeContext';
+import React, { useState } from "react";
+import { createRoot } from "react-dom/client";
+import { useGlucoseData } from "./hooks/useGlucoseData";
+import { useCredentials } from "./hooks/useCredentials";
+import { GlucoseStatus } from "./components/GlucoseStatus";
+import { GlucoseChart } from "./components/GlucoseChart";
+import { SettingsForm } from "./components/SettingsForm";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 const PopupApp: React.FC = () => {
-  const [currentTab, setCurrentTab] = useState('graph');
-  const { glucoseData, loading, error, forceUpdate } = useGlucoseData(currentTab);
-  const { credentials, setCredentials, saveCredentials, saveMessage } = useCredentials();
-
+  const [currentTab, setCurrentTab] = useState("graph");
+  const { glucoseData, loading, error, forceUpdate } =
+    useGlucoseData(currentTab);
+  const { credentials, setCredentials, saveCredentials, saveMessage } =
+    useCredentials();
 
   return (
     <div className="container">
       <div className="header">
-        <h1>🩸 LibreView Glucose Monitor</h1>
+        <h1>
+          <img
+            src="../icons/icon128.png"
+            alt=""
+            width="24"
+            height="24"
+            style={{ verticalAlign: "middle", marginRight: "8px" }}
+          />{" "}
+          LibreView Glucose Monitor
+        </h1>
       </div>
 
       <div className="tabs">
-        <button 
-          className={`tab ${currentTab === 'graph' ? 'active' : ''}`}
-          onClick={() => setCurrentTab('graph')}
+        <button
+          className={`tab ${currentTab === "graph" ? "active" : ""}`}
+          onClick={() => setCurrentTab("graph")}
         >
           Graph
         </button>
-        <button 
-          className={`tab ${currentTab === 'settings' ? 'active' : ''}`}
-          onClick={() => setCurrentTab('settings')}
+        <button
+          className={`tab ${currentTab === "settings" ? "active" : ""}`}
+          onClick={() => setCurrentTab("settings")}
         >
           Settings
         </button>
       </div>
 
       <div className="tab-content">
-        {currentTab === 'graph' && (
+        {currentTab === "graph" && (
           <div className="tab-pane active">
             <GlucoseStatus
               value={glucoseData.value}
@@ -43,7 +53,7 @@ const PopupApp: React.FC = () => {
               loading={loading}
               onRefresh={forceUpdate}
             />
-            
+
             <GlucoseChart
               data={glucoseData.data || []}
               currentValue={glucoseData.value}
@@ -53,7 +63,7 @@ const PopupApp: React.FC = () => {
           </div>
         )}
 
-        {currentTab === 'settings' && (
+        {currentTab === "settings" && (
           <SettingsForm
             credentials={credentials}
             setCredentials={setCredentials}
@@ -67,12 +77,12 @@ const PopupApp: React.FC = () => {
 };
 
 // Initialize the React app
-const container = document.getElementById('root');
+const container = document.getElementById("root");
 if (container) {
   const root = createRoot(container);
   root.render(
     <ThemeProvider>
       <PopupApp />
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 }
