@@ -52,6 +52,8 @@ const PopupApp: React.FC = () => {
               lastUpdate={glucoseData.lastUpdate}
               loading={loading}
               onRefresh={forceUpdate}
+              isStale={glucoseData.isStale}
+              lastError={glucoseData.lastError}
             />
 
             <GlucoseChart

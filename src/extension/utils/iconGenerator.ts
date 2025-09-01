@@ -1,11 +1,14 @@
-import { 
-  GLUCOSE_COLORS, 
-  GLUCOSE_STATUS_LABELS, 
-  getGlucoseZone 
-} from '../popup/config/glucoseConfig';
+import {
+  GLUCOSE_COLORS,
+  GLUCOSE_STATUS_LABELS,
+  getGlucoseZone,
+} from "../popup/config/glucoseConfig";
 
 export class IconGenerator {
-  static async updateBrowserIcon(value: number): Promise<void> {
+  static async updateBrowserIcon(
+    value: number,
+    isStale: boolean = false,
+  ): Promise<void> {
     try {
       console.log(`Generating icon for glucose value: ${value} mg/dL`);
 
@@ -15,16 +18,26 @@ export class IconGenerator {
 
       if (!ctx) {
         console.error(
-          "Failed to get 2D rendering context for OffscreenCanvas."
+          "Failed to get 2D rendering context for OffscreenCanvas.",
         );
         return;
       }
 
-      // Determine colors based on glucose range using config
-      const glucoseZone = getGlucoseZone(value);
-      const bgColor = GLUCOSE_COLORS[glucoseZone];
-      const textColor = glucoseZone === 'ELEVATED' ? "#000000" : "#FFFFFF"; // Black text on orange for better visibility
-      const status = GLUCOSE_STATUS_LABELS[glucoseZone];
+      // Determine colors based on glucose range using config or gray if stale
+      let bgColor: string;
+      let textColor: string;
+      let status: string;
+
+      if (isStale) {
+        bgColor = "#808080"; // Gray background for stale data
+        textColor = "#FFFFFF"; // White text on gray
+        status = "Data Stale";
+      } else {
+        const glucoseZone = getGlucoseZone(value);
+        bgColor = GLUCOSE_COLORS[glucoseZone];
+        textColor = glucoseZone === "ELEVATED" ? "#000000" : "#FFFFFF"; // Black text on orange for better visibility
+        status = GLUCOSE_STATUS_LABELS[glucoseZone];
+      }
 
       // Fill the entire canvas with the background color
       ctx.fillStyle = bgColor;
@@ -64,7 +77,7 @@ export class IconGenerator {
           },
         });
         console.log(
-          `✓ Updated browser icon showing "${displayValue}" (bg: ${bgColor}, text: ${textColor})`
+          `✓ Updated browser icon showing "${displayValue}" (bg: ${bgColor}, text: ${textColor})`,
         );
       }
 
@@ -74,7 +87,7 @@ export class IconGenerator {
           title: `Glucose: ${value} mg/dL (${status})`,
         });
         console.log(
-          `✓ Updated browser title: Glucose: ${value} mg/dL (${status})`
+          `✓ Updated browser title: Glucose: ${value} mg/dL (${status})`,
         );
       }
     } catch (error) {

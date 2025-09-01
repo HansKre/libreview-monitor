@@ -8,6 +8,8 @@ interface GlucoseStatusProps {
   lastUpdate?: number;
   loading: boolean;
   onRefresh: () => void;
+  isStale?: boolean;
+  lastError?: string;
 }
 
 export const GlucoseStatus: React.FC<GlucoseStatusProps> = ({
@@ -15,6 +17,8 @@ export const GlucoseStatus: React.FC<GlucoseStatusProps> = ({
   lastUpdate,
   loading,
   onRefresh,
+  isStale = false,
+  lastError,
 }) => {
   const { themeColors } = useTheme();
   const status = value ? getGlucoseStatus(value) : null;
@@ -34,7 +38,7 @@ export const GlucoseStatus: React.FC<GlucoseStatusProps> = ({
           style={{
             fontSize: "48px",
             fontWeight: "bold",
-            color: value ? status?.color : "#666",
+            color: value ? (isStale ? "#808080" : status?.color) : "#666", // Gray color for stale data
             lineHeight: "1",
             marginBottom: "4px",
           }}
@@ -65,10 +69,24 @@ export const GlucoseStatus: React.FC<GlucoseStatusProps> = ({
                   minute: "2-digit",
                   second: "2-digit",
                   hour12: false,
-                }
+                },
               )}`
             : "Loading..."}
         </div>
+        {lastError && (
+          <div
+            style={{
+              fontSize: "13px",
+              color: "#d32f2f",
+              fontWeight: "500",
+              marginTop: "6px",
+              padding: "6px 0",
+              borderRadius: "4px",
+            }}
+          >
+            Error: {lastError}
+          </div>
+        )}
       </div>
       <button
         onClick={onRefresh}
@@ -91,7 +109,8 @@ export const GlucoseStatus: React.FC<GlucoseStatusProps> = ({
         }}
         onMouseEnter={(e) => {
           if (!loading) {
-            e.currentTarget.style.backgroundColor = themeColors.interactive.hover;
+            e.currentTarget.style.backgroundColor =
+              themeColors.interactive.hover;
             e.currentTarget.style.color = themeColors.text.primary;
           }
         }}

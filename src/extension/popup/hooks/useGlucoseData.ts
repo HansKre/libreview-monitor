@@ -1,37 +1,57 @@
-import { useState, useEffect } from 'react';
-import type { GlucoseData } from '../../../types';
+import { useState, useEffect } from "react";
+import type { GlucoseData } from "../../../types";
 
 export interface StoredGlucoseData {
   value?: number;
   data?: GlucoseData[];
   lastUpdate?: number;
+  lastError?: string;
+  lastErrorTime?: number;
+  isStale: boolean;
 }
 
 export const useGlucoseData = (currentTab: string) => {
-  const [glucoseData, setGlucoseData] = useState<StoredGlucoseData>({});
+  const [glucoseData, setGlucoseData] = useState<StoredGlucoseData>({
+    isStale: false,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const sendMessage = (message: Record<string, unknown>): Promise<{ success: boolean; data?: StoredGlucoseData; error?: string }> => {
+  const sendMessage = (
+    message: Record<string, unknown>,
+  ): Promise<{
+    success: boolean;
+    data?: StoredGlucoseData;
+    error?: string;
+  }> => {
     return new Promise((resolve) => {
       chrome.runtime.sendMessage(message, (response) => {
-        resolve(response || { success: false, error: 'No response from background script' });
+        resolve(
+          response || {
+            success: false,
+            error: "No response from background script",
+          },
+        );
       });
     });
   };
 
   const loadGlucoseData = async () => {
     try {
-      const response = await sendMessage({ type: 'GET_GLUCOSE_DATA' });
+      const response = await sendMessage({ type: "GET_GLUCOSE_DATA" });
       if (response.success && response.data) {
         setGlucoseData(response.data);
         setError(null);
       } else {
-        setError('No glucose data available. Please configure your credentials in Settings.');
+        setError(
+          "No glucose data available. Please configure your credentials in Settings.",
+        );
       }
     } catch (error) {
-      console.error('Failed to load glucose data:', error);
-      setError('Failed to load glucose data. Please check your internet connection.');
+      console.error("Failed to load glucose data:", error);
+      setError(
+        "Failed to load glucose data. Please check your internet connection.",
+      );
     } finally {
       setLoading(false);
     }
@@ -40,16 +60,16 @@ export const useGlucoseData = (currentTab: string) => {
   const forceUpdate = async () => {
     setLoading(true);
     try {
-      const response = await sendMessage({ type: 'FORCE_UPDATE' });
+      const response = await sendMessage({ type: "FORCE_UPDATE" });
       if (response.success && response.data) {
         setGlucoseData(response.data);
         setError(null);
       } else {
-        setError(response.error || 'Failed to update glucose data');
+        setError(response.error || "Failed to update glucose data");
       }
     } catch (error) {
-      console.error('Failed to force update:', error);
-      setError('Failed to update glucose data. Please check your credentials.');
+      console.error("Failed to force update:", error);
+      setError("Failed to update glucose data. Please check your credentials.");
     } finally {
       setLoading(false);
     }
@@ -60,7 +80,7 @@ export const useGlucoseData = (currentTab: string) => {
 
     // Auto-refresh every minute
     const interval = setInterval(() => {
-      if (currentTab === 'graph') {
+      if (currentTab === "graph") {
         loadGlucoseData();
       }
     }, 60000);
@@ -72,6 +92,6 @@ export const useGlucoseData = (currentTab: string) => {
     glucoseData,
     loading,
     error,
-    forceUpdate
+    forceUpdate,
   };
 };

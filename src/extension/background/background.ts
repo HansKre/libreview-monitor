@@ -145,8 +145,13 @@ class BackgroundService {
       // Check if we have existing glucose data to display immediately
       const existingData = await ChromeStorage.getGlucoseData();
       if (existingData.value) {
-        console.log(`Found existing glucose data: ${existingData.value} mg/dL`);
-        await IconGenerator.updateBrowserIcon(existingData.value);
+        console.log(
+          `Found existing glucose data: ${existingData.value} mg/dL${existingData.isStale ? " (stale)" : ""}`,
+        );
+        await IconGenerator.updateBrowserIcon(
+          existingData.value,
+          existingData.isStale,
+        );
       }
 
       // Start periodic updates
@@ -265,8 +270,8 @@ class BackgroundService {
         // Store data
         await ChromeStorage.setGlucoseData(latestValue, processedData);
 
-        // Update icon
-        await IconGenerator.updateBrowserIcon(latestValue);
+        // Update icon (data is fresh, so not stale)
+        await IconGenerator.updateBrowserIcon(latestValue, false);
 
         // Update last fetch time
         this.lastUpdateTime = now;
@@ -280,12 +285,21 @@ class BackgroundService {
     } catch (error) {
       console.error("Failed to update glucose data:", error);
 
+      // Store the error for display in popup
+      const errorMessage = (error as Error).message || "Unknown error";
+      await ChromeStorage.setError(errorMessage);
+
+      // Check if we have existing glucose data to show with stale indicator
+      const existingData = await ChromeStorage.getGlucoseData();
+      if (existingData.value) {
+        // Update icon with stale indicator
+        await IconGenerator.updateBrowserIcon(existingData.value, true);
+      }
+
       // Update icon to show error state
       if (chrome.action && chrome.action.setTitle) {
         chrome.action.setTitle({
-          title: `LibreView Glucose Monitor - Error: ${
-            (error as Error).message || "Unknown error"
-          }`,
+          title: `LibreView Glucose Monitor - Error: ${errorMessage}`,
         });
       }
     }

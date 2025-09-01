@@ -1,3 +1,5 @@
+import type { GlucoseData } from "../../types";
+
 export interface StoredCredentials {
   email?: string;
   password?: string;
@@ -7,12 +9,16 @@ export interface StoredData {
   credentials?: StoredCredentials;
   lastGlucoseValue?: number;
   lastUpdate?: number;
-  glucoseData?: any[];
-  theme?: 'light' | 'dark' | 'system';
+  glucoseData?: GlucoseData[];
+  theme?: "light" | "dark" | "system";
+  lastError?: string;
+  lastErrorTime?: number;
 }
 
 export class ChromeStorage {
-  static async get<T extends keyof StoredData>(keys: T[]): Promise<Pick<StoredData, T>> {
+  static async get<T extends keyof StoredData>(
+    keys: T[],
+  ): Promise<Pick<StoredData, T>> {
     return new Promise((resolve) => {
       // Use local storage instead of sync to avoid quota issues
       chrome.storage.local.get(keys, (result) => {
@@ -26,7 +32,7 @@ export class ChromeStorage {
       // Use local storage for large data, sync only for credentials
       chrome.storage.local.set(data, () => {
         if (chrome.runtime.lastError) {
-          console.error('Storage error:', chrome.runtime.lastError);
+          console.error("Storage error:", chrome.runtime.lastError);
           reject(new Error(chrome.runtime.lastError.message));
         } else {
           resolve();
@@ -38,7 +44,7 @@ export class ChromeStorage {
   static async getCredentials(): Promise<StoredCredentials> {
     // Get credentials from sync storage
     return new Promise((resolve) => {
-      chrome.storage.sync.get(['credentials'], (result) => {
+      chrome.storage.sync.get(["credentials"], (result) => {
         resolve(result.credentials || {});
       });
     });
@@ -49,7 +55,7 @@ export class ChromeStorage {
     return new Promise((resolve, reject) => {
       chrome.storage.sync.set({ credentials }, () => {
         if (chrome.runtime.lastError) {
-          console.error('Credential storage error:', chrome.runtime.lastError);
+          console.error("Credential storage error:", chrome.runtime.lastError);
           reject(new Error(chrome.runtime.lastError.message));
         } else {
           resolve();
@@ -58,23 +64,55 @@ export class ChromeStorage {
     });
   }
 
-  static async getGlucoseData(): Promise<{ value?: number; data?: any[]; lastUpdate?: number }> {
-    const result = await this.get(['lastGlucoseValue', 'glucoseData', 'lastUpdate']);
+  static async getGlucoseData(): Promise<{
+    value?: number;
+    data?: GlucoseData[];
+    lastUpdate?: number;
+    lastError?: string;
+    lastErrorTime?: number;
+    isStale: boolean;
+  }> {
+    const result = await this.get([
+      "lastGlucoseValue",
+      "glucoseData",
+      "lastUpdate",
+      "lastError",
+      "lastErrorTime",
+    ]);
+    const now = Date.now();
+    const fiveMinutesAgo = now - 5 * 60 * 1000; // 5 minutes in milliseconds
+    const isStale = !result.lastUpdate || result.lastUpdate < fiveMinutesAgo;
+
     return {
       value: result.lastGlucoseValue,
       data: result.glucoseData,
-      lastUpdate: result.lastUpdate
+      lastUpdate: result.lastUpdate,
+      lastError: result.lastError,
+      lastErrorTime: result.lastErrorTime,
+      isStale,
     };
   }
 
-  static async setGlucoseData(value: number, data: any[]): Promise<void> {
+  static async setGlucoseData(
+    value: number,
+    data: GlucoseData[],
+  ): Promise<void> {
     // Limit stored data to last 50 readings to avoid quota issues
     const limitedData = data.slice(-50);
-    await this.set({ 
-      lastGlucoseValue: value, 
-      glucoseData: limitedData, 
-      lastUpdate: Date.now() 
+    await this.set({
+      lastGlucoseValue: value,
+      glucoseData: limitedData,
+      lastUpdate: Date.now(),
+      // Clear any previous error when data is successfully updated
+      lastError: undefined,
+      lastErrorTime: undefined,
     });
   }
 
+  static async setError(errorMessage: string): Promise<void> {
+    await this.set({
+      lastError: errorMessage,
+      lastErrorTime: Date.now(),
+    });
+  }
 }
