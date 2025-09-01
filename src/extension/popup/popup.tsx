@@ -1,18 +1,29 @@
 import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
-import { useGlucoseData } from "./hooks/useGlucoseData";
-import { useCredentials } from "./hooks/useCredentials";
-import { GlucoseStatus } from "./components/GlucoseStatus";
 import { GlucoseChart } from "./components/GlucoseChart";
+import { GlucoseStatus } from "./components/GlucoseStatus";
 import { SettingsForm } from "./components/SettingsForm";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { useCredentials } from "./hooks/useCredentials";
+import { useGlucoseData } from "./hooks/useGlucoseData";
 
 const PopupApp: React.FC = () => {
   const [currentTab, setCurrentTab] = useState("graph");
+  const [graphRenderKey, setGraphRenderKey] = useState(0);
   const { glucoseData, loading, error, forceUpdate } =
     useGlucoseData(currentTab);
   const { credentials, setCredentials, saveCredentials, saveMessage } =
     useCredentials();
+
+  const handleGraphTabClick = () => {
+    if (currentTab === "graph") {
+      // re-render content of graph-tab
+      // so that animations are shown again
+      setGraphRenderKey((prev) => prev + 1);
+    } else {
+      setCurrentTab("graph");
+    }
+  };
 
   return (
     <div className="container">
@@ -32,7 +43,7 @@ const PopupApp: React.FC = () => {
       <div className="tabs">
         <button
           className={`tab ${currentTab === "graph" ? "active" : ""}`}
-          onClick={() => setCurrentTab("graph")}
+          onClick={handleGraphTabClick}
         >
           Graph
         </button>
@@ -46,7 +57,7 @@ const PopupApp: React.FC = () => {
 
       <div className="tab-content">
         {currentTab === "graph" && (
-          <div className="tab-pane active">
+          <div key={graphRenderKey} className="tab-pane active">
             <GlucoseStatus
               value={glucoseData.value}
               lastUpdate={glucoseData.lastUpdate}
