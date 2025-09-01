@@ -1,4 +1,5 @@
 import React from "react";
+import { AnimatedCounter } from "react-animated-counter";
 import { GLUCOSE_COLORS } from "../config/glucoseConfig";
 import { useTheme } from "../contexts/ThemeContext";
 import { getGlucoseStatus } from "../utils/glucoseUtils";
@@ -41,23 +42,46 @@ export const GlucoseStatus: React.FC<GlucoseStatusProps> = ({
       >
         <div
           style={{
-            fontSize: "48px",
-            fontWeight: "bold",
-            color: value ? (isStale ? "#808080" : status?.color) : "#666", // Gray color for stale data
-            lineHeight: "1",
-            marginBottom: "4px",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          {value || "--"}
-          <span
+          <div
             style={{
-              fontSize: "20px",
-              fontWeight: "normal",
-              marginLeft: "4px",
+              display: "flex",
+              alignItems: "flex-end",
+              fontWeight: "bold",
+              color: value ? (isStale ? "#808080" : status?.color) : "#666", // Gray color for stale data
+              lineHeight: "1",
+              marginBottom: "-2px",
             }}
           >
-            mg/dL
-          </span>
+            {value ? (
+              <AnimatedCounter
+                value={value}
+                fontSize="52px"
+                decimalPrecision={0}
+                color={isStale ? "#808080" : status?.color || "#666"}
+                incrementColor={status?.color || "#666"}
+                decrementColor={status?.color || "#666"}
+                containerStyles={{
+                  fontFamily: "monospace",
+                }}
+              />
+            ) : (
+              "--"
+            )}
+            <span
+              style={{
+                fontSize: "20px",
+                lineHeight: "30px", // align with the digits
+                fontWeight: "normal",
+                marginLeft: "4px",
+              }}
+            >
+              mg/dL
+            </span>
+          </div>
           <div
             style={{
               fontSize: "14px",
