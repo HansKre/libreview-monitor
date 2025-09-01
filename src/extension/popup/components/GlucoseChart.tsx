@@ -8,19 +8,16 @@ import {
   YAxis,
 } from "recharts";
 import type { GlucoseData } from "../../../types";
+import { Y_AXIS_CONFIG } from "../config/glucoseConfig";
+import { getThemeAwareChartStyles } from "../config/themeConfig";
+import { useTheme } from "../contexts/ThemeContext";
 import { formatChartData } from "../utils/glucoseUtils";
+import { formatTooltipLabel, formatTooltipValue } from "../utils/tooltipUtils";
+import { ChartLegend } from "./ChartLegend";
 import { ChartLoadingStates } from "./ChartLoadingStates";
 import { ChartTitle } from "./ChartTitle";
 import { GlucoseLines } from "./GlucoseLines";
 import { ReferenceElements } from "./ReferenceElements";
-import { ChartLegend } from "./ChartLegend";
-import { formatTooltipValue, formatTooltipLabel } from "../utils/tooltipUtils";
-import {
-  Y_AXIS_CONFIG,
-  CHART_STYLES,
-} from "../config/glucoseConfig";
-import { useTheme } from "../contexts/ThemeContext";
-import { getThemeAwareChartStyles } from "../config/themeConfig";
 
 interface GlucoseChartProps {
   data: GlucoseData[];
@@ -49,7 +46,7 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
   }
 
   const chartData = formatChartData(data);
-  
+
   // Create theme-aware tooltip style
   const tooltipContentStyle = {
     backgroundColor: themeColors.background.primary,
@@ -60,7 +57,12 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
   };
 
   return (
-    <div style={{ background: themeColors.background.primary, padding: "0 16px 16px" }}>
+    <div
+      style={{
+        background: themeColors.background.primary,
+        padding: "0 16px 16px",
+      }}
+    >
       <ChartTitle />
 
       <div
@@ -73,7 +75,7 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
       >
         <ResponsiveContainer width="100%" height={280}>
           <LineChart data={chartData}>
-            <CartesianGrid 
+            <CartesianGrid
               strokeDasharray={themeChartStyles.grid.strokeDasharray}
               stroke={themeChartStyles.grid.stroke}
             />
@@ -97,11 +99,15 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
               }}
               axisLine={{ stroke: themeChartStyles.axis.stroke }}
               width={40}
-              label={{ 
-                value: 'mg/dL', 
-                angle: -90, 
-                position: 'insideLeft',
-                style: { textAnchor: 'middle', fill: themeColors.text.secondary }
+              label={{
+                value: "mg/dL",
+                angle: -90,
+                position: "insideLeft",
+                style: {
+                  textAnchor: "middle",
+                  fill: themeColors.text.secondary,
+                },
+                offset: -1,
               }}
             />
             <Tooltip
