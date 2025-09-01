@@ -53,8 +53,8 @@ export const REFERENCE_AREAS = {
 
 // Y-axis configuration
 export const Y_AXIS_CONFIG = {
-  domain: [50, 350],
-  ticks: [50, 70, 100, 150, 190, 250, 300, 350],
+  domain: [0, 350],
+  ticks: [0, 50, 100, 150, 200, 250, 300, 350],
 } as const;
 
 // Chart styling configuration

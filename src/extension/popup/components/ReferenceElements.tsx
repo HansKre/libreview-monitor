@@ -1,10 +1,7 @@
 import React from "react";
-import { ReferenceLine } from "recharts";
+import { ReferenceLine, ReferenceArea } from "recharts";
 import type { GlucoseData } from "../../../types";
-import { DelayedReferenceArea } from "./DelayedReferenceArea";
 import {
-  REFERENCE_LINES,
-  REFERENCE_AREAS,
   CHART_STYLES,
 } from "../config/glucoseConfig";
 
@@ -16,34 +13,28 @@ export const ReferenceElements: React.FC<ReferenceElementsProps> = ({
   data,
 }) => {
   const lastDataPoint = data[data.length - 1];
+  const referenceValues = [350, 300, 250, 200, 150, 100, 50];
 
   return (
     <>
-      {/* Reference lines for glucose ranges */}
-      <ReferenceLine
-        y={REFERENCE_LINES.VERY_LOW_THRESHOLD.value}
-        stroke={REFERENCE_LINES.VERY_LOW_THRESHOLD.color}
-        strokeDasharray={CHART_STYLES.referenceLine.strokeDasharray}
-        strokeWidth={CHART_STYLES.referenceLine.strokeWidth}
-        strokeOpacity={CHART_STYLES.referenceLine.strokeOpacity}
-      />
-      <DelayedReferenceArea 
-        y1={REFERENCE_AREAS.NORMAL.y1} 
-        y2={REFERENCE_AREAS.NORMAL.y2}
-      />
-      <ReferenceLine
-        y={REFERENCE_LINES.HIGH_THRESHOLD.value}
-        stroke={REFERENCE_LINES.HIGH_THRESHOLD.color}
-        strokeDasharray={CHART_STYLES.referenceLine.strokeDasharray}
-        strokeWidth={CHART_STYLES.referenceLine.strokeWidth}
-        strokeOpacity={CHART_STYLES.referenceLine.strokeOpacity}
-      />
-      <ReferenceLine
-        y={REFERENCE_LINES.VERY_HIGH_THRESHOLD.value}
-        stroke={REFERENCE_LINES.VERY_HIGH_THRESHOLD.color}
-        strokeDasharray={CHART_STYLES.referenceLine.strokeDasharray}
-        strokeWidth={CHART_STYLES.referenceLine.strokeWidth}
-        strokeOpacity={CHART_STYLES.referenceLine.strokeOpacity}
+      {/* Reference lines at specified values */}
+      {referenceValues.map((value) => (
+        <ReferenceLine
+          key={value}
+          y={value}
+          stroke="#ccc"
+          strokeDasharray={CHART_STYLES.referenceLine.strokeDasharray}
+          strokeWidth={CHART_STYLES.referenceLine.strokeWidth}
+          strokeOpacity={CHART_STYLES.referenceLine.strokeOpacity}
+        />
+      ))}
+      
+      {/* Reference area between 70 and 180 */}
+      <ReferenceArea
+        y1={70}
+        y2={180}
+        fill="#4caf50"
+        fillOpacity={0.1}
       />
 
       {/* Vertical line separating actual from projected data */}
