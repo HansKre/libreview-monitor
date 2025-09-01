@@ -1,11 +1,5 @@
 # LibreView Glucose Monitor - Chrome Web Store Description
 
-## Short Description (132 characters max)
-
-Real-time glucose monitoring for FreeStyle Libre users with interactive charts and trend projections right in your browser.
-
-## Detailed Description
-
 Transform your Chrome browser into a powerful glucose monitoring hub with LibreView Glucose Monitor - the professional extension designed specifically for FreeStyle Libre users.
 
 🎯 **Real-Time Monitoring Made Simple**
@@ -17,13 +11,6 @@ View your glucose trends through beautiful, interactive charts powered by profes
 🔮 **Smart Trend Projections**
 Our advanced algorithm analyzes your last 30 minutes of glucose data to predict where your levels are heading. Using linear regression, the extension generates reliable 5-minute interval projections up to 60 minutes ahead, helping you stay proactive about your glucose management.
 
-🎨 **Medical-Grade Color Coding**
-Visual glucose zones make it easy to understand your status at a glance:
-• 🟢 Normal Range (100-155 mg/dL)
-• 🟠 Elevated (156-189 mg/dL)
-• 🔴 Low/High (70-99, 190-249 mg/dL)
-• ⚫ Critical (<70, 250+ mg/dL)
-
 🔒 **Privacy & Security First**
 Your sensitive health data stays secure with encrypted local storage and direct HTTPS communication with LibreView servers. No third-party data collection, no tracking, no compromises on your privacy.
 
@@ -31,10 +18,8 @@ Your sensitive health data stays secure with encrypted local storage and direct 
 
 - Automatic background updates every minute
 - Persistent monitoring across browser sessions
-- Sequential chart animations for clear data visualization
-- Modern React interface with responsive design
 - Chrome's reliable Alarms API for consistent updates
-- Full TypeScript implementation for stability
+- Light and Dark Theme
 
 ⚕️ **For the Diabetes Community**
 Created by developers who understand the importance of reliable glucose monitoring. This extension complements your existing diabetes management routine and integrates seamlessly with your FreeStyle Libre system.
@@ -57,21 +42,6 @@ This extension is for informational purposes only and should not replace profess
 
 Transform your diabetes monitoring experience today with LibreView Glucose Monitor - because staying informed about your health should be simple, secure, and always accessible.
 
----
-
-## Category
-
-**Health & Fitness**
-
-## Keywords/Tags (separate by commas)
-
-glucose monitor, diabetes, freestyle libre, blood sugar, cgm, health tracker, medical, glucose trends, diabetes management, health dashboard, glucose chart, blood glucose, diabetes monitor, libre view, glucose tracking
-
-## Privacy Practices
-
-**Does this extension collect user data?**
-No, this extension does not collect any user data.
-
 **Data Usage:**
 
 - User credentials are stored locally and encrypted using Chrome's secure storage APIs
@@ -90,17 +60,3 @@ No, this extension does not collect any user data.
 ## Target Audience
 
 Adults with diabetes who use FreeStyle Libre continuous glucose monitoring systems and want convenient browser-based access to their glucose data and trends.
-
-## Screenshots Needed
-
-1. **Main Interface**: Extension popup showing glucose chart with actual and projected data
-2. **Browser Icon**: Chrome toolbar showing glucose value with color coding
-3. **Settings Page**: Credential input interface
-4. **Chart Animation**: Sequential display of actual data followed by projections
-5. **Color Zones**: Chart showing different glucose ranges with color coding
-
-## Promotional Images
-
-- **Marquee (1400x560)**: Hero image showing browser with extension icon and popup chart
-- **Small Tile (440x280)**: Clean icon with "Real-time Glucose Monitoring" text
-- **Large Tile (920x680)**: Split view showing browser icon and detailed chart interface

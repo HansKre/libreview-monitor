@@ -69,7 +69,6 @@ This project is **not affiliated with Abbott Laboratories** or the official Free
    ```
 
 3. **Load in Chrome:**
-
    - Open Chrome and navigate to `chrome://extensions/`
    - Enable "Developer mode" (toggle in top right)
    - Click "Load unpacked"
@@ -136,7 +135,7 @@ Contributions are welcome! Please feel free to:
 git clone https://github.com/HansKre/libreview-monitor.git
 cd libreview-monitor
 npm install
-npm run build:extension:dev  # Builds with file watching
+npm run watch  # Builds with file watching
 ```
 
 ## 📊 How It Works
@@ -176,6 +175,35 @@ npm run build:extension:dev  # Builds with file watching
 - The extension only communicates with official LibreView servers
 - No third-party services have access to your data
 
+## Releasing
+
+### Prepare extension
+
+- update version in `manifest.json`
+- run `npm run release`
+
+### Upload to Chrome Web Store
+
+- Login to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
+- Click the GitHub UI Booster extension
+- Go to Build > Package
+- Click "Upload new package"
+- Drag and drop the zip file into the dialog
+- Click "Submit for review"
+
+### Update screenshot
+
+- take screenshot and right-click > Open with > GIMP
+- CMD+A, CMD+C
+- CMD + N to create a new file
+- dimensions: 1280x800
+- SHIFT+B, choose black and colorize the layer in black
+- CMD+V
+- SHIFT+S for the Resize Tool
+- CMD+two-fingers to zoom out
+- resize the pasted image as needed
+- SHIFT+CMD+E to export
+
 ## 📖 API References
 
 - [LibreView API Documentation](https://gist.github.com/khskekec/6c13ba01b10d3018d816706a32ae8ab2)
@@ -183,7 +211,7 @@ npm run build:extension:dev  # Builds with file watching
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) for details.
+ISC License - see [LICENSE](LICENSE) for details.
 
 ---
 

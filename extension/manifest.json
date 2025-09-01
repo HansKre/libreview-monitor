@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "LibreView Glucose Monitor",
   "version": "1.0.0",
-  "description": "Real-time glucose monitoring for FreeStyle Libre users. View current glucose levels, interactive charts with trend projections, and get dynamic browser icon updates based on your glucose ranges.",
+  "description": "Real-time glucose monitoring for FreeStyle Libre users. Interactive charts with trend projections and dynamic browser icons.",
   "homepage_url": "https://github.com/HansKre/libreview-monitor",
   "short_name": "LibreView Monitor",
   "permissions": ["storage", "activeTab", "alarms"],

@@ -14,7 +14,7 @@
     "prepare": "husky"
   },
   "keywords": [],
-  "author": "",
+  "author": "HansKre",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
