@@ -1,6 +1,7 @@
 import React from "react";
 import { GLUCOSE_COLORS } from "../config/glucoseConfig";
 import { getGlucoseStatus } from "../utils/glucoseUtils";
+import { useTheme } from "../contexts/ThemeContext";
 
 interface GlucoseStatusProps {
   value?: number;
@@ -15,6 +16,7 @@ export const GlucoseStatus: React.FC<GlucoseStatusProps> = ({
   loading,
   onRefresh,
 }) => {
+  const { themeColors } = useTheme();
   const status = value ? getGlucoseStatus(value) : null;
 
   return (
@@ -89,8 +91,8 @@ export const GlucoseStatus: React.FC<GlucoseStatusProps> = ({
         }}
         onMouseEnter={(e) => {
           if (!loading) {
-            e.currentTarget.style.backgroundColor = GLUCOSE_COLORS.NORMAL;
-            e.currentTarget.style.color = "white";
+            e.currentTarget.style.backgroundColor = themeColors.interactive.hover;
+            e.currentTarget.style.color = themeColors.text.primary;
           }
         }}
         onMouseLeave={(e) => {
