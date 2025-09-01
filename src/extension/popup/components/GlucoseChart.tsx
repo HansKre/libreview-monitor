@@ -12,6 +12,13 @@ import {
 import type { GlucoseData } from "../../../types";
 import { formatChartData, getGlucoseColor } from "../utils/glucoseUtils";
 import { DelayedReferenceArea } from "./DelayedReferenceArea";
+import {
+  REFERENCE_LINES,
+  REFERENCE_AREAS,
+  Y_AXIS_CONFIG,
+  CHART_STYLES,
+  ANIMATION_CONFIG,
+} from "../config/glucoseConfig";
 
 interface GlucoseChartProps {
   data: GlucoseData[];
@@ -66,25 +73,27 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
       >
         <ResponsiveContainer width="100%" height={280}>
           <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <CartesianGrid 
+              strokeDasharray={CHART_STYLES.grid.strokeDasharray}
+              stroke={CHART_STYLES.grid.stroke}
+            />
             <XAxis
               dataKey="time"
               interval="preserveStartEnd"
               tick={{
-                fontSize: 12,
-                fontFamily:
-                  '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                fontSize: CHART_STYLES.axis.fontSize,
+                fontFamily: CHART_STYLES.axis.fontFamily,
               }}
-              axisLine={{ stroke: "#ccc" }}
+              axisLine={{ stroke: CHART_STYLES.axis.stroke }}
             />
             <YAxis
-              domain={[50, 350]}
+              domain={Y_AXIS_CONFIG.domain}
+              ticks={Y_AXIS_CONFIG.ticks}
               tick={{
-                fontSize: 12,
-                fontFamily:
-                  '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                fontSize: CHART_STYLES.axis.fontSize,
+                fontFamily: CHART_STYLES.axis.fontFamily,
               }}
-              axisLine={{ stroke: "#ccc" }}
+              axisLine={{ stroke: CHART_STYLES.axis.stroke }}
               width={40}
             />
             <Tooltip
@@ -105,8 +114,7 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
                 backgroundColor: "white",
                 border: "1px solid #ccc",
                 borderRadius: "4px",
-                fontFamily:
-                  '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                fontFamily: CHART_STYLES.axis.fontFamily,
               }}
             />
 
@@ -124,8 +132,8 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
                 strokeWidth: 2,
               }}
               connectNulls={false}
-              animationBegin={0}
-              animationDuration={1500}
+              animationBegin={ANIMATION_CONFIG.actualLine.begin}
+              animationDuration={ANIMATION_CONFIG.actualLine.duration}
             />
 
             {/* Standard projected glucose data line */}
@@ -145,8 +153,8 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
                 strokeOpacity: 0.7,
               }}
               connectNulls={true}
-              animationBegin={1500}
-              animationDuration={1000}
+              animationBegin={ANIMATION_CONFIG.projectedLines.begin}
+              animationDuration={ANIMATION_CONFIG.projectedLines.duration}
             />
 
             {/* Time-aware projected glucose data line */}
@@ -166,31 +174,34 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
                 strokeOpacity: 0.5,
               }}
               connectNulls={true}
-              animationBegin={1500}
-              animationDuration={1000}
+              animationBegin={ANIMATION_CONFIG.projectedLines.begin}
+              animationDuration={ANIMATION_CONFIG.projectedLines.duration}
             />
             {/* Reference lines for glucose ranges */}
             <ReferenceLine
-              y={70}
-              stroke="#8B0000"
-              strokeDasharray="2 2"
-              strokeWidth={1}
-              strokeOpacity={0.5}
+              y={REFERENCE_LINES.VERY_LOW_THRESHOLD.value}
+              stroke={REFERENCE_LINES.VERY_LOW_THRESHOLD.color}
+              strokeDasharray={CHART_STYLES.referenceLine.strokeDasharray}
+              strokeWidth={CHART_STYLES.referenceLine.strokeWidth}
+              strokeOpacity={CHART_STYLES.referenceLine.strokeOpacity}
             />
-            <DelayedReferenceArea y1={100} y2={156} />
-            <ReferenceLine
-              y={190}
-              stroke="#f44336"
-              strokeDasharray="2 2"
-              strokeWidth={1}
-              strokeOpacity={0.5}
+            <DelayedReferenceArea 
+              y1={REFERENCE_AREAS.NORMAL.y1} 
+              y2={REFERENCE_AREAS.NORMAL.y2}
             />
             <ReferenceLine
-              y={250}
-              stroke="#8B0000"
-              strokeDasharray="2 2"
-              strokeWidth={1}
-              strokeOpacity={0.5}
+              y={REFERENCE_LINES.HIGH_THRESHOLD.value}
+              stroke={REFERENCE_LINES.HIGH_THRESHOLD.color}
+              strokeDasharray={CHART_STYLES.referenceLine.strokeDasharray}
+              strokeWidth={CHART_STYLES.referenceLine.strokeWidth}
+              strokeOpacity={CHART_STYLES.referenceLine.strokeOpacity}
+            />
+            <ReferenceLine
+              y={REFERENCE_LINES.VERY_HIGH_THRESHOLD.value}
+              stroke={REFERENCE_LINES.VERY_HIGH_THRESHOLD.color}
+              strokeDasharray={CHART_STYLES.referenceLine.strokeDasharray}
+              strokeWidth={CHART_STYLES.referenceLine.strokeWidth}
+              strokeOpacity={CHART_STYLES.referenceLine.strokeOpacity}
             />
 
             {/* Vertical line separating actual from projected data */}
@@ -202,10 +213,10 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
                 minute: "2-digit",
                 hour12: false,
               })}
-              stroke="#999"
-              strokeDasharray="3 3"
-              strokeWidth={1}
-              strokeOpacity={0.6}
+              stroke={CHART_STYLES.separatorLine.color}
+              strokeDasharray={CHART_STYLES.separatorLine.strokeDasharray}
+              strokeWidth={CHART_STYLES.separatorLine.strokeWidth}
+              strokeOpacity={CHART_STYLES.separatorLine.strokeOpacity}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -217,8 +228,7 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
           display: "flex",
           justifyContent: "space-between", // distributes evenly
           alignItems: "center",
-          fontFamily:
-            '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          fontFamily: CHART_STYLES.axis.fontFamily,
           fontSize: "11px",
           color: "#666",
           gap: "16px",

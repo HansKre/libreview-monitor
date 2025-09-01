@@ -1,5 +1,6 @@
 import React from "react";
 import { getGlucoseStatus } from "../utils/glucoseUtils";
+import { GLUCOSE_COLORS } from "../config/glucoseConfig";
 
 interface GlucoseStatusProps {
   value?: number;
@@ -73,8 +74,8 @@ export const GlucoseStatus: React.FC<GlucoseStatusProps> = ({
         disabled={loading}
         style={{
           background: "none",
-          border: "2px solid #4caf50",
-          color: "#4caf50",
+          border: `2px solid ${GLUCOSE_COLORS.NORMAL}`,
+          color: GLUCOSE_COLORS.NORMAL,
           padding: "8px 16px",
           borderRadius: "20px",
           cursor: loading ? "not-allowed" : "pointer",
@@ -89,14 +90,14 @@ export const GlucoseStatus: React.FC<GlucoseStatusProps> = ({
         }}
         onMouseEnter={(e) => {
           if (!loading) {
-            e.currentTarget.style.backgroundColor = "#4caf50";
+            e.currentTarget.style.backgroundColor = GLUCOSE_COLORS.NORMAL;
             e.currentTarget.style.color = "white";
           }
         }}
         onMouseLeave={(e) => {
           if (!loading) {
             e.currentTarget.style.backgroundColor = "transparent";
-            e.currentTarget.style.color = "#4caf50";
+            e.currentTarget.style.color = GLUCOSE_COLORS.NORMAL;
           }
         }}
       >

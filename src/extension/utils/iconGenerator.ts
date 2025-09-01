@@ -1,3 +1,9 @@
+import { 
+  GLUCOSE_COLORS, 
+  GLUCOSE_STATUS_LABELS, 
+  getGlucoseZone 
+} from '../popup/config/glucoseConfig';
+
 export class IconGenerator {
   static async updateBrowserIcon(value: number): Promise<void> {
     try {
@@ -14,36 +20,11 @@ export class IconGenerator {
         return;
       }
 
-      // Determine colors based on glucose range
-      let bgColor = "";
-      let textColor = "";
-      let status = "";
-
-      if (value < 70) {
-        bgColor = "#8B0000"; // Very low (<70) - Dark Red
-        textColor = "#FFFFFF";
-        status = "VERY LOW";
-      } else if (value < 100) {
-        bgColor = "#F44336"; // Low (70-99) - Red
-        textColor = "#FFFFFF";
-        status = "LOW";
-      } else if (value >= 250) {
-        bgColor = "#8B0000"; // Very high (250+) - Dark Red
-        textColor = "#FFFFFF";
-        status = "VERY HIGH";
-      } else if (value >= 190) {
-        bgColor = "#F44336"; // High (190-249) - Red
-        textColor = "#FFFFFF";
-        status = "HIGH";
-      } else if (value >= 156) {
-        bgColor = "#FF9800"; // Elevated (156-189) - Orange
-        textColor = "#000000"; // Black text on orange for better visibility
-        status = "ELEVATED";
-      } else {
-        bgColor = "#4CAF50"; // Normal (100-155) - Green
-        textColor = "#FFFFFF";
-        status = "Normal";
-      }
+      // Determine colors based on glucose range using config
+      const glucoseZone = getGlucoseZone(value);
+      const bgColor = GLUCOSE_COLORS[glucoseZone];
+      const textColor = glucoseZone === 'ELEVATED' ? "#000000" : "#FFFFFF"; // Black text on orange for better visibility
+      const status = GLUCOSE_STATUS_LABELS[glucoseZone];
 
       // Fill the entire canvas with the background color
       ctx.fillStyle = bgColor;

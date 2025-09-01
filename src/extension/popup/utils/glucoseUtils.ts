@@ -1,4 +1,5 @@
 import type { GlucoseData } from '../../../types';
+import { getGlucoseStatusFromConfig, getGlucoseColorFromConfig } from '../config/glucoseConfig';
 
 export interface GlucoseStatus {
   status: string;
@@ -6,21 +7,11 @@ export interface GlucoseStatus {
 }
 
 export const getGlucoseStatus = (value: number): GlucoseStatus => {
-  if (value < 70) return { status: 'VERY LOW', color: '#8B0000' };
-  if (value < 100) return { status: 'LOW', color: '#f44336' };
-  if (value >= 250) return { status: 'VERY HIGH', color: '#8B0000' };
-  if (value >= 190) return { status: 'HIGH', color: '#f44336' };
-  if (value >= 156) return { status: 'ELEVATED', color: '#ff9800' };
-  return { status: 'NORMAL', color: '#4caf50' };
+  return getGlucoseStatusFromConfig(value);
 };
 
 export const getGlucoseColor = (value: number): string => {
-  if (value < 70) return '#8B0000'; // Very low - Dark Red
-  if (value < 100) return '#f44336'; // Low - Red
-  if (value >= 250) return '#8B0000'; // Very high - Dark Red
-  if (value >= 190) return '#f44336'; // High - Red
-  if (value >= 156) return '#ff9800'; // Elevated - Orange
-  return '#4caf50'; // Normal - Green
+  return getGlucoseColorFromConfig(value);
 };
 
 export interface ProjectionPoint {
@@ -33,7 +24,7 @@ export interface ProjectionPoint {
 const calculateDataInterval = (data: GlucoseData[]): number => {
   if (data.length < 2) return 5 * 60 * 1000; // Default to 5 minutes
   
-  const intervals = [];
+  const intervals: number[] = [];
   for (let i = 1; i < data.length; i++) {
     const currentTime = new Date(data[i].Timestamp).getTime();
     const previousTime = new Date(data[i - 1].Timestamp).getTime();
@@ -175,8 +166,6 @@ export interface ChartDataPoint {
 
 export const formatChartData = (data: GlucoseData[]): ChartDataPoint[] => {
   if (data.length === 0) return [];
-  
-  const lastDataPoint = data[data.length - 1];
   
   // Map actual data, but make the last point have both actual and projected values for smooth connection
   const actualData: ChartDataPoint[] = data.map((item, index) => ({
