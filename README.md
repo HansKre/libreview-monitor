@@ -1,6 +1,6 @@
 # LibreView Glucose Monitor Chrome Extension
 
-**LibreView Glucose Monitor** – A professional Chrome extension for FreeStyle Libre users that provides real-time blood glucose monitoring with interactive visualizations and intelligent trend analysis directly in your browser.
+**LibreView Glucose Monitor** – A professional Chrome extension for FreeStyle Libre users that provides real-time blood glucose monitoring with interactive visualizations and intelligent trend analysis directly in your browser. [Install it from the Chrome Web Store](https://chromewebstore.google.com/detail/libreview-glucose-monitor/emfglagmlmkbmoacmidocogloijnkmma).
 
 ---
 
