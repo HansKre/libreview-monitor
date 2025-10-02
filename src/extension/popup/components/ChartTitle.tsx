@@ -3,9 +3,10 @@ import { useTheme } from "../contexts/ThemeContext";
 
 export const ChartTitle: React.FC = () => {
   const { themeColors } = useTheme();
-  
+
   return (
     <h3
+      data-testid="chart-title"
       style={{
         fontSize: "18px",
         fontWeight: "600",

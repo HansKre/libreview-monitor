@@ -1,22 +1,18 @@
 import React from "react";
 import { ReferenceLine, ReferenceArea } from "recharts";
 import type { GlucoseData } from "../../../types";
-import {
-  CHART_STYLES,
-} from "../config/glucoseConfig";
+import { CHART_STYLES } from "../config/glucoseConfig";
 import { useTheme } from "../contexts/ThemeContext";
 import { getThemeAwareChartStyles } from "../config/themeConfig";
 
-interface ReferenceElementsProps {
+type Props = {
   data: GlucoseData[];
-}
+};
 
-export const ReferenceElements: React.FC<ReferenceElementsProps> = ({
-  data,
-}) => {
+export const ReferenceElements: React.FC<Props> = ({ data }) => {
   const { resolvedTheme } = useTheme();
   const themeChartStyles = getThemeAwareChartStyles(resolvedTheme);
-  
+
   const lastDataPoint = data[data.length - 1];
   const referenceValues = [350, 300, 250, 200, 150, 100, 50];
 
@@ -33,24 +29,20 @@ export const ReferenceElements: React.FC<ReferenceElementsProps> = ({
           strokeOpacity={CHART_STYLES.referenceLine.strokeOpacity}
         />
       ))}
-      
+
       {/* Reference area between 70 and 180 */}
-      <ReferenceArea
-        y1={70}
-        y2={180}
-        fill="#4caf50"
-        fillOpacity={0.1}
-      />
+      <ReferenceArea y1={70} y2={180} fill="#4caf50" fillOpacity={0.1} />
 
       {/* Vertical line separating actual from projected data */}
       <ReferenceLine
-        x={new Date(
-          lastDataPoint?.Timestamp || Date.now()
-        ).toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        })}
+        x={new Date(lastDataPoint?.Timestamp || Date.now()).toLocaleTimeString(
+          "en-US",
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          },
+        )}
         stroke={themeChartStyles.separatorLine.color}
         strokeDasharray={CHART_STYLES.separatorLine.strokeDasharray}
         strokeWidth={CHART_STYLES.separatorLine.strokeWidth}

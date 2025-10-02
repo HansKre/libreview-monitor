@@ -1,14 +1,13 @@
 import React from "react";
 
-interface LastUpdatedInfoProps {
+type Props = {
   lastUpdate?: number;
-}
+};
 
-export const LastUpdatedInfo: React.FC<LastUpdatedInfoProps> = ({
-  lastUpdate,
-}) => {
+export const LastUpdatedInfo: React.FC<Props> = ({ lastUpdate }) => {
   return (
     <div
+      data-testid="last-updated-info"
       style={{
         fontSize: "14px",
         color: "#666",

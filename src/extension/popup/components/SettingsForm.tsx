@@ -1,21 +1,21 @@
 import React from "react";
 import { ThemeToggle } from "./ThemeToggle";
 
-interface SettingsFormProps {
+type Props = {
   credentials: { email: string; password: string };
   setCredentials: (credentials: { email: string; password: string }) => void;
   onSubmit: (e: React.FormEvent) => void;
   saveMessage: { text: string; type: "success" | "error" } | null;
-}
+};
 
-export const SettingsForm: React.FC<SettingsFormProps> = ({
+export const SettingsForm: React.FC<Props> = ({
   credentials,
   setCredentials,
   onSubmit,
   saveMessage,
 }) => {
   return (
-    <div className="tab-pane active">
+    <div data-testid="settings-form" className="tab-pane active">
       <div className="settings-info">
         Enter your LibreView credentials to enable automatic glucose monitoring.
         Your credentials are stored securely in Chrome's local storage.

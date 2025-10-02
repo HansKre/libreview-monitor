@@ -4,16 +4,16 @@ import { LastUpdatedInfo } from "./LastUpdatedInfo";
 import { RefreshButton } from "./RefreshButton";
 import { ErrorDisplay } from "./ErrorDisplay";
 
-interface GlucoseStatusProps {
+type Props = {
   value?: number;
   lastUpdate?: number;
   loading: boolean;
   onRefresh: () => void;
   isStale?: boolean;
   lastError?: string;
-}
+};
 
-export const GlucoseStatus: React.FC<GlucoseStatusProps> = ({
+export const GlucoseStatus: React.FC<Props> = ({
   value,
   lastUpdate,
   loading,
@@ -23,6 +23,7 @@ export const GlucoseStatus: React.FC<GlucoseStatusProps> = ({
 }) => {
   return (
     <div
+      data-testid="glucose-status"
       style={{
         display: "flex",
         flexDirection: "column",

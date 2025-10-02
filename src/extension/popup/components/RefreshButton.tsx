@@ -2,19 +2,17 @@ import React from "react";
 import { GLUCOSE_COLORS } from "../config/glucoseConfig";
 import { useTheme } from "../contexts/ThemeContext";
 
-interface RefreshButtonProps {
+type Props = {
   loading: boolean;
   onRefresh: () => void;
-}
+};
 
-export const RefreshButton: React.FC<RefreshButtonProps> = ({
-  loading,
-  onRefresh,
-}) => {
+export const RefreshButton: React.FC<Props> = ({ loading, onRefresh }) => {
   const { themeColors } = useTheme();
 
   return (
     <button
+      data-testid="refresh-button"
       onClick={onRefresh}
       disabled={loading}
       style={{

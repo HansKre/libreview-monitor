@@ -19,14 +19,14 @@ import { ChartTitle } from "./ChartTitle";
 import { GlucoseLines } from "./GlucoseLines";
 import { ReferenceElements } from "./ReferenceElements";
 
-interface GlucoseChartProps {
+type Props = {
   data: GlucoseData[];
   currentValue?: number;
   error?: string | null;
   loading: boolean;
-}
+};
 
-export const GlucoseChart: React.FC<GlucoseChartProps> = ({
+export const GlucoseChart: React.FC<Props> = ({
   data,
   currentValue,
   error,
@@ -146,6 +146,7 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
 
   return (
     <div
+      data-testid="glucose-chart"
       style={{
         background: themeColors.background.primary,
         padding: "0 16px 16px",
@@ -154,6 +155,7 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
       <ChartTitle />
 
       <div
+        data-testid="chart-container"
         style={{
           background: themeColors.background.primary,
           borderRadius: "0",

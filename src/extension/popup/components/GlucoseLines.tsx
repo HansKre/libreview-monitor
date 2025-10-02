@@ -5,15 +5,12 @@ import { getGlucoseColor } from "../utils/glucoseUtils";
 import { calculateGlucoseTrend } from "../utils/tooltipUtils";
 import { ANIMATION_CONFIG } from "../config/glucoseConfig";
 
-interface GlucoseLinesProps {
+type Props = {
   data: GlucoseData[];
   currentValue?: number;
-}
+};
 
-export const GlucoseLines: React.FC<GlucoseLinesProps> = ({
-  data,
-  currentValue,
-}) => {
+export const GlucoseLines: React.FC<Props> = ({ data, currentValue }) => {
   const lastDataPoint = data[data.length - 1];
   const strokeColor = getGlucoseColor(lastDataPoint?.Value || 100);
 

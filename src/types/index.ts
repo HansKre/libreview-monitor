@@ -1,4 +1,4 @@
-export interface GlucoseData {
+export type GlucoseData = {
   FactoryTimestamp: string;
   Timestamp: string;
   type: number;
@@ -11,15 +11,15 @@ export interface GlucoseData {
   isHigh: boolean;
   isLow: boolean;
   alarmType?: number;
-}
+};
 
-export interface ApiResponse {
+export type ApiResponse = {
   jwtToken: string;
   accountIdHash: string;
   patientId: string;
-}
+};
 
-export interface LoginResponse {
+export type LoginResponse = {
   status?: number;
   data?: {
     authTicket?: { token?: string };
@@ -27,17 +27,17 @@ export interface LoginResponse {
     redirect?: boolean;
     region?: string;
   };
-}
+};
 
-export interface ConnectionsResponse {
+export type ConnectionsResponse = {
   data?: Array<{ patientId?: string }>;
-}
+};
 
-export interface GraphResponse {
+export type GraphResponse = {
   data?: {
     graphData?: GlucoseData[];
     connection?: {
       glucoseMeasurement?: { Value?: number };
     };
   };
-}
+};

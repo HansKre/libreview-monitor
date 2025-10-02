@@ -2,23 +2,26 @@ import React, { useEffect, useState } from "react";
 import { ReferenceArea } from "recharts";
 import { REFERENCE_AREAS, ANIMATION_CONFIG } from "../config/glucoseConfig";
 
-type props = {
+type Props = {
   y1: number;
   y2: number;
   fill?: string;
   fillOpacity?: number;
 };
 
-export const DelayedReferenceArea: React.FC<props> = ({ 
-  y1, 
-  y2, 
+export const DelayedReferenceArea: React.FC<Props> = ({
+  y1,
+  y2,
   fill = REFERENCE_AREAS.NORMAL.fill,
-  fillOpacity = REFERENCE_AREAS.NORMAL.fillOpacity 
+  fillOpacity = REFERENCE_AREAS.NORMAL.fillOpacity,
 }) => {
   const [showArea, setShowArea] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowArea(true), ANIMATION_CONFIG.referenceArea.delay);
+    const timer = setTimeout(
+      () => setShowArea(true),
+      ANIMATION_CONFIG.referenceArea.delay,
+    );
     return () => clearTimeout(timer);
   }, []);
 

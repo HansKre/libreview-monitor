@@ -26,8 +26,8 @@ const PopupApp: React.FC = () => {
   };
 
   return (
-    <div className="container">
-      <div className="header">
+    <div data-testid="popup-app" className="container">
+      <div data-testid="header" className="header">
         <h1>
           <img
             src="../icons/icon128.png"
@@ -40,14 +40,16 @@ const PopupApp: React.FC = () => {
         </h1>
       </div>
 
-      <div className="tabs">
+      <div data-testid="tabs" className="tabs">
         <button
+          data-testid="tab-graph"
           className={`tab ${currentTab === "graph" ? "active" : ""}`}
           onClick={handleGraphTabClick}
         >
           Graph
         </button>
         <button
+          data-testid="tab-settings"
           className={`tab ${currentTab === "settings" ? "active" : ""}`}
           onClick={() => setCurrentTab("settings")}
         >
@@ -55,7 +57,7 @@ const PopupApp: React.FC = () => {
         </button>
       </div>
 
-      <div className="tab-content">
+      <div data-testid="tab-content" className="tab-content">
         {currentTab === "graph" && (
           <div key={graphRenderKey} className="tab-pane active">
             <GlucoseStatus

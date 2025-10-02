@@ -41,6 +41,24 @@ npm run lint && npx tsc --noEmit --project .
 
 Claude should proactively run these commands after making any code changes to catch and fix TypeScript errors, linting issues, and ensure code quality before proceeding.
 
+## Code Style Guidelines
+
+**IMPORTANT**: All code must follow the guidelines in CODESTYLE.md:
+
+### TypeScript
+
+- Always prefer `type` over `interface`
+- Avoid `any` type at any cost
+- If casting is unavoidable, make sanity-checks before casting
+
+### React
+
+- Component props are simply called "Props" (not "ComponentNameProps")
+- Always do named exports, avoid default exports
+- Write small, composable, reusable components
+- Every component should have a unique `data-testid` resembling its component name
+- Even if not a component, every parent container should have a `data-testid` resembling its container name
+
 ## Architecture
 
 ### Chrome Extension Structure

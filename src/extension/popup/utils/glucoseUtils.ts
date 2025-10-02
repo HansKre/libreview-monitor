@@ -4,10 +4,10 @@ import {
   getGlucoseColorFromConfig,
 } from "../config/glucoseConfig";
 
-export interface GlucoseStatus {
+export type GlucoseStatus = {
   status: string;
   color: string;
-}
+};
 
 export const getGlucoseStatus = (value: number): GlucoseStatus => {
   return getGlucoseStatusFromConfig(value);
@@ -17,11 +17,11 @@ export const getGlucoseColor = (value: number): string => {
   return getGlucoseColorFromConfig(value);
 };
 
-export interface ProjectionPoint {
+export type ProjectionPoint = {
   timestamp: number;
   value: number;
   isProjected: true;
-}
+};
 
 // Calculate average time interval between historic data points
 const calculateDataInterval = (data: GlucoseData[]): number => {
@@ -172,7 +172,7 @@ export const calculateTimeAwareProjection = (
   return projectionPoints;
 };
 
-export interface ChartDataPoint {
+export type ChartDataPoint = {
   time: number; // Unix timestamp for linear time scale
   timeLabel: string; // Formatted time label for display
   value: number | null;
@@ -181,12 +181,12 @@ export interface ChartDataPoint {
   timestamp: string;
   color: string;
   isProjected: boolean;
-}
+};
 
 // Extended GlucoseData with gap indicator for internal processing
-interface GlucoseDataWithGap extends GlucoseData {
+type GlucoseDataWithGap = GlucoseData & {
   isGap?: boolean;
-}
+};
 
 // Fill gaps in data to show disconnected lines for missing time intervals
 const fillDataGaps = (

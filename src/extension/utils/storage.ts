@@ -1,11 +1,11 @@
 import type { GlucoseData } from "../../types";
 
-export interface StoredCredentials {
+export type StoredCredentials = {
   email?: string;
   password?: string;
-}
+};
 
-export interface StoredData {
+export type StoredData = {
   credentials?: StoredCredentials;
   lastGlucoseValue?: number;
   lastUpdate?: number;
@@ -13,7 +13,7 @@ export interface StoredData {
   theme?: "light" | "dark" | "system";
   lastError?: string;
   lastErrorTime?: number;
-}
+};
 
 export class ChromeStorage {
   static async get<T extends keyof StoredData>(

@@ -1,12 +1,12 @@
 import React from "react";
 
-interface ChartLoadingStatesProps {
+type Props = {
   error?: string | null;
   loading: boolean;
   hasData: boolean;
-}
+};
 
-export const ChartLoadingStates: React.FC<ChartLoadingStatesProps> = ({
+export const ChartLoadingStates: React.FC<Props> = ({
   error,
   loading,
   hasData,

@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import type { GlucoseData } from "../../../types";
 
-export interface StoredGlucoseData {
+export type StoredGlucoseData = {
   value?: number;
   data?: GlucoseData[];
   lastUpdate?: number;
   lastError?: string;
   lastErrorTime?: number;
   isStale: boolean;
-}
+};
 
 export const useGlucoseData = (currentTab: string) => {
   const [glucoseData, setGlucoseData] = useState<StoredGlucoseData>({

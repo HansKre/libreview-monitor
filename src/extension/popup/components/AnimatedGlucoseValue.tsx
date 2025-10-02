@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { AnimatedCounter } from "react-animated-counter";
 import { getGlucoseStatus } from "../utils/glucoseUtils";
 
-interface AnimatedGlucoseValueProps {
+type Props = {
   value?: number;
   isStale?: boolean;
-}
+};
 
-export const AnimatedGlucoseValue: React.FC<AnimatedGlucoseValueProps> = ({
+export const AnimatedGlucoseValue: React.FC<Props> = ({
   value,
   isStale = false,
 }) => {
@@ -20,6 +20,7 @@ export const AnimatedGlucoseValue: React.FC<AnimatedGlucoseValueProps> = ({
 
   return (
     <div
+      data-testid="animated-glucose-value"
       style={{
         display: "flex",
         alignItems: "flex-end",

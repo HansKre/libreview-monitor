@@ -2,11 +2,11 @@ import React from "react";
 import { getGlucoseColor } from "../utils/glucoseUtils";
 import { CHART_STYLES } from "../config/glucoseConfig";
 
-interface ChartLegendProps {
+type Props = {
   currentValue?: number;
-}
+};
 
-export const ChartLegend: React.FC<ChartLegendProps> = ({ currentValue }) => {
+export const ChartLegend: React.FC<Props> = ({ currentValue }) => {
   const legendItems = [
     {
       label: "Actual",
@@ -34,6 +34,7 @@ export const ChartLegend: React.FC<ChartLegendProps> = ({ currentValue }) => {
 
   return (
     <div
+      data-testid="chart-legend"
       style={{
         padding: "0 32px",
         display: "flex",

@@ -1,14 +1,15 @@
 import React from "react";
 
-interface ErrorDisplayProps {
+type Props = {
   error?: string;
-}
+};
 
-export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
+export const ErrorDisplay: React.FC<Props> = ({ error }) => {
   if (!error) return null;
 
   return (
     <div
+      data-testid="error-display"
       style={{
         fontSize: "13px",
         color: "#d32f2f",
