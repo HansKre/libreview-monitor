@@ -198,6 +198,7 @@ class BackgroundService {
   private api = new LibreViewAPI();
   private lastUpdateTime = 0;
   private readonly MIN_UPDATE_INTERVAL_MS = 55000; // Minimum 55 seconds between updates
+  private readonly DATA_UPDATE_INTERVAL_MS = 5 * 60 * 1000; // LibreView updates every 5 minutes
   readonly ALARM_NAME = "glucoseUpdate";
 
   async initialize() {
@@ -239,13 +240,45 @@ class BackgroundService {
     // Clear any existing alarm
     chrome.alarms.clear(this.ALARM_NAME);
 
-    // Create a repeating alarm for glucose updates (more reliable than setInterval in service workers)
+    // Initial fetch happens immediately in initialize()
+    // We'll schedule the next alarm after receiving data
+    console.log(
+      "Periodic updates will be scheduled dynamically based on data timestamps",
+    );
+  }
+
+  private scheduleNextUpdate(lastDataTimestamp: string) {
+    // Parse the last data timestamp
+    const lastUpdate = new Date(lastDataTimestamp);
+    const now = new Date();
+
+    // Calculate when the next data point should be available (5 minutes after last timestamp)
+    const nextDataAvailable = new Date(
+      lastUpdate.getTime() + this.DATA_UPDATE_INTERVAL_MS,
+    );
+
+    // Add a small buffer (10 seconds) to ensure data is available
+    const nextFetchTime = new Date(nextDataAvailable.getTime() + 10000);
+
+    // Calculate delay in minutes
+    let delayMs = nextFetchTime.getTime() - now.getTime();
+
+    // If the calculated time is in the past or very soon, fetch in 1 minute
+    if (delayMs < 60000) {
+      delayMs = 60000;
+    }
+
+    const delayMinutes = delayMs / 60000;
+
+    // Clear any existing alarm and create new one
+    chrome.alarms.clear(this.ALARM_NAME);
     chrome.alarms.create(this.ALARM_NAME, {
-      delayInMinutes: 1, // Start after 1 minute
-      periodInMinutes: 1, // Repeat every minute
+      delayInMinutes: delayMinutes,
     });
 
-    console.log("Created repeating alarm for glucose updates every 1 minute");
+    console.log(
+      `📅 Next glucose update scheduled in ${delayMinutes.toFixed(1)} minutes at ${nextFetchTime.toLocaleTimeString()} (last data: ${lastUpdate.toLocaleTimeString()})`,
+    );
   }
 
   async updateGlucoseData() {
@@ -345,6 +378,10 @@ class BackgroundService {
         console.log(
           `✓ Updated glucose value: ${latestValue} mg/dL at ${new Date().toLocaleTimeString()}${result.currentMeasurementValue ? " (from current measurement)" : " (from graph data)"}`,
         );
+
+        // Schedule next update based on the latest data timestamp
+        const latestDataPoint = processedData[processedData.length - 1];
+        this.scheduleNextUpdate(latestDataPoint.Timestamp);
       } else {
         console.log("No glucose data received from API");
       }
@@ -361,6 +398,13 @@ class BackgroundService {
       if (existingData.value) {
         // Update icon with stale indicator
         await IconGenerator.updateBrowserIcon(existingData.value, true);
+
+        // If we have existing data with timestamps, schedule next update based on last timestamp
+        if (existingData.data && existingData.data.length > 0) {
+          const latestDataPoint =
+            existingData.data[existingData.data.length - 1];
+          this.scheduleNextUpdate(latestDataPoint.Timestamp);
+        }
       }
 
       // Update icon to show error state
