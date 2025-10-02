@@ -1,4 +1,5 @@
 import React from "react";
+import { useTheme } from "../contexts/ThemeContext";
 import { ThemeToggle } from "./ThemeToggle";
 
 type Props = {
@@ -14,14 +15,40 @@ export const SettingsForm: React.FC<Props> = ({
   onSubmit,
   saveMessage,
 }) => {
+  const { themeColors } = useTheme();
+
   return (
     <div data-testid="settings-form" className="tab-pane active">
+      <div
+        style={{
+          color: themeColors.text.secondary,
+          padding: "12px 0",
+          marginBottom: "12px",
+          fontSize: "13px",
+          lineHeight: "1.5",
+          borderTop: `1px solid ${themeColors.border}`,
+          borderBottom: `1px solid ${themeColors.border}`,
+        }}
+      >
+        <div style={{ marginBottom: "12px" }}>
+          <strong>⚠️ Important Disclaimer:</strong> This project is not
+          affiliated with Abbott Laboratories or the official FreeStyle Libre
+          product line. Use at your own risk. Data accuracy may vary. Always
+          follow guidance from your healthcare provider. This extension is for
+          informational purposes only and should not replace professional
+          medical advice, diagnosis, or treatment.
+        </div>
+        <div>
+          <strong>Note:</strong> FreeStyle Libre 3 CGM readings occur every
+          minute, but LibreView cloud sync updates only every 5 minutes. This is
+          a technical limitation of LibreView, not this extension.
+        </div>
+      </div>
+
       <div className="settings-info">
         Enter your LibreView credentials to enable automatic glucose monitoring.
         Your credentials are stored securely in Chrome's local storage.
       </div>
-
-      <ThemeToggle />
 
       <form onSubmit={onSubmit}>
         <div className="form-group">
@@ -66,6 +93,8 @@ export const SettingsForm: React.FC<Props> = ({
           </div>
         )}
       </form>
+
+      <ThemeToggle />
     </div>
   );
 };
