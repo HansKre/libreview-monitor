@@ -6,7 +6,10 @@
   "homepage_url": "https://github.com/HansKre/libreview-monitor",
   "short_name": "LibreView Monitor",
   "permissions": ["storage", "activeTab", "alarms"],
-  "host_permissions": ["https://api.libreview.io/*"],
+  "host_permissions": [
+    "https://api.libreview.io/*",
+    "https://api-de.libreview.io/*"
+  ],
   "background": {
     "service_worker": "background.js",
     "type": "module"

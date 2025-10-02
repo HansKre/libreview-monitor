@@ -20,9 +20,12 @@ export interface ApiResponse {
 }
 
 export interface LoginResponse {
+  status?: number;
   data?: {
     authTicket?: { token?: string };
     user?: { id?: string };
+    redirect?: boolean;
+    region?: string;
   };
 }
 

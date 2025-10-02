@@ -10,7 +10,13 @@ import type {
 } from "../../types";
 
 // API Configuration
-const API_BASE_URL = "https://api.libreview.io";
+const buildApiUrl = (region?: string): string => {
+  return region
+    ? `https://api-${region}.libreview.io`
+    : "https://api.libreview.io";
+};
+
+let API_BASE_URL = buildApiUrl();
 const HEADERS = {
   "accept-encoding": "gzip",
   "cache-control": "no-cache",
@@ -44,6 +50,66 @@ class LibreViewAPI {
     });
 
     const loginResponse = response.data;
+
+    // Check for redirect response
+    if (
+      loginResponse?.status === 0 &&
+      loginResponse?.data?.redirect === true &&
+      loginResponse?.data?.region
+    ) {
+      const region = loginResponse.data.region;
+      const newApiUrl = buildApiUrl(region);
+
+      console.log(
+        `Login redirect detected for region: ${region}, adjusting API URL to: ${newApiUrl}`,
+      );
+
+      // Update the global API_BASE_URL
+      API_BASE_URL = newApiUrl;
+
+      // Update the axios client's baseURL
+      apiClient.defaults.baseURL = newApiUrl;
+
+      // Retry authentication with the new URL
+      const retryResponse = await apiClient.post<LoginResponse>(
+        "/llu/auth/login",
+        {
+          email: credentials.email,
+          password: credentials.password,
+        },
+      );
+
+      const retryLoginResponse = retryResponse.data;
+      const jwtToken = retryLoginResponse?.data?.authTicket?.token;
+      const accountId = retryLoginResponse?.data?.user?.id;
+
+      if (!jwtToken) throw new Error("Authentication failed after redirect");
+      if (!accountId) throw new Error("Account ID not found after redirect");
+
+      // SHA256 digest of a user's id as a 64-char hexadecimal string
+      const accountIdHash = await this.sha256(accountId);
+
+      // Retrieve patientId
+      const connectionsResponse = await apiClient.get<ConnectionsResponse>(
+        "/llu/connections",
+        {
+          headers: {
+            authorization: `Bearer ${jwtToken}`,
+            "account-id": accountIdHash,
+          },
+        },
+      );
+
+      const connectionsData = connectionsResponse.data;
+      const patientId = connectionsData?.data?.[0]?.patientId;
+
+      if (!patientId) throw new Error("No patient ID found after redirect");
+
+      this.auth = { jwtToken, accountIdHash, patientId };
+      return this.auth;
+    }
+
+    // Normal authentication flow (no redirect)
     const jwtToken = loginResponse?.data?.authTicket?.token;
     const accountId = loginResponse?.data?.user?.id;
 
