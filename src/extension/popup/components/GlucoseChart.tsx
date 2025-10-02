@@ -163,6 +163,11 @@ export const GlucoseChart: React.FC<Props> = ({
           margin: "0px -16px",
         }}
       >
+        <style>{`
+          .recharts-xAxis {
+            transform: translateX(-15px);
+          }
+        `}</style>
         <ResponsiveContainer width="100%" height={280}>
           <LineChart data={chartData}>
             <CartesianGrid
