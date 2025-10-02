@@ -108,7 +108,7 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
       tickIntervalMs = 4 * 60 * 60 * 1000;
     }
 
-    // Round minTime down to nearest tick interval for clean axis start
+    // Round minTime down to nearest tick interval for tick generation
     const roundedMinTime =
       Math.floor(minTime / tickIntervalMs) * tickIntervalMs;
     // Round maxTime up to nearest tick interval for clean axis end
@@ -122,10 +122,13 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
       currentTick += tickIntervalMs;
     }
 
+    // Remove the first tick to eliminate the leftmost label
+    const filteredTicks = ticks.slice(1);
+
     return {
-      ticks,
+      ticks: filteredTicks,
       interval: 0 as const,
-      minDomain: roundedMinTime,
+      minDomain: minTime, // Start at actual first data point
       maxDomain: roundedMaxTime,
     };
   };
