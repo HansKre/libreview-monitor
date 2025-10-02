@@ -135,6 +135,60 @@ export const GlucoseChart: React.FC<Props> = ({
 
   const xAxisConfig = calculateXAxisConfig();
 
+  // Calculate dynamic Y-axis configuration
+  const calculateYAxisConfig = () => {
+    if (chartData.length === 0) {
+      return {
+        domain: [0, 350] as [number, number],
+        ticks: [0, 50, 100, 150, 200, 250, 300, 350],
+      };
+    }
+
+    // Get all glucose values (both actual and projected)
+    const glucoseValues = chartData
+      .flatMap((d) => [d.value, d.projectedValue, d.timeAwareProjectedValue])
+      .filter((v): v is number => v !== null && v !== undefined);
+
+    if (glucoseValues.length === 0) {
+      return {
+        domain: [0, 350] as [number, number],
+        ticks: [0, 50, 100, 150, 200, 250, 300, 350],
+      };
+    }
+
+    const minValue = Math.min(...glucoseValues);
+    const maxValue = Math.max(...glucoseValues);
+    const dataRange = maxValue - minValue;
+
+    // Ensure minimum range for readability
+    const effectiveRange = Math.max(dataRange, Y_AXIS_CONFIG.minRange);
+
+    // Calculate domain with padding
+    const paddingTop = effectiveRange * Y_AXIS_CONFIG.paddingTop;
+    const paddingBottom = effectiveRange * Y_AXIS_CONFIG.paddingBottom;
+
+    let domainMin = Math.max(0, Math.floor(minValue - paddingBottom));
+    let domainMax = Math.ceil(maxValue + paddingTop);
+
+    // Round to nearest tickInterval for cleaner display
+    const tickInterval = Y_AXIS_CONFIG.tickInterval;
+    domainMin = Math.floor(domainMin / tickInterval) * tickInterval;
+    domainMax = Math.ceil(domainMax / tickInterval) * tickInterval;
+
+    // Generate ticks
+    const ticks: number[] = [];
+    for (let tick = domainMin; tick <= domainMax; tick += tickInterval) {
+      ticks.push(tick);
+    }
+
+    return {
+      domain: [domainMin, domainMax] as [number, number],
+      ticks,
+    };
+  };
+
+  const yAxisConfig = calculateYAxisConfig();
+
   // Create theme-aware tooltip style
   const tooltipContentStyle = {
     backgroundColor: themeColors.background.primary,
@@ -200,8 +254,8 @@ export const GlucoseChart: React.FC<Props> = ({
               axisLine={{ stroke: themeChartStyles.axis.stroke }}
             />
             <YAxis
-              domain={Y_AXIS_CONFIG.domain}
-              ticks={Y_AXIS_CONFIG.ticks}
+              domain={yAxisConfig.domain}
+              ticks={yAxisConfig.ticks}
               tick={{
                 fontSize: themeChartStyles.axis.fontSize,
                 fontFamily: themeChartStyles.axis.fontFamily,

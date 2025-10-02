@@ -53,8 +53,13 @@ export const REFERENCE_AREAS = {
 
 // Y-axis configuration
 export const Y_AXIS_CONFIG = {
-  domain: [0, 350],
-  ticks: [0, 50, 100, 150, 200, 250, 300, 350],
+  // Padding percentages for dynamic y-axis scaling
+  paddingTop: 0.15, // 15% padding above max value
+  paddingBottom: 0.1, // 10% padding below min value
+  // Minimum range to show (prevents too zoomed in charts)
+  minRange: 100,
+  // Tick interval for dynamic ticks
+  tickInterval: 25,
 } as const;
 
 // Chart styling configuration (theme-aware colors will be handled by theme context)
