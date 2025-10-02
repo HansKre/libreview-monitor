@@ -349,10 +349,11 @@ class BackgroundService {
         console.log("No glucose data received from API");
       }
     } catch (error) {
-      console.error("Failed to update glucose data:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      console.error("Failed to update glucose data:", errorMessage);
 
       // Store the error for display in popup
-      const errorMessage = (error as Error).message || "Unknown error";
       await ChromeStorage.setError(errorMessage);
 
       // Check if we have existing glucose data to show with stale indicator
@@ -453,7 +454,9 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     try {
       await backgroundService.updateGlucoseData();
     } catch (error) {
-      console.error("Alarm-triggered update failed:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      console.error("Alarm-triggered update failed:", errorMessage);
     }
   }
 });
