@@ -47,6 +47,91 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
 
   const chartData = formatChartData(data);
 
+  // Calculate dynamic time span and tick configuration
+  const calculateXAxisConfig = () => {
+    if (chartData.length === 0) {
+      return {
+        ticks: undefined,
+        interval: "preserveStartEnd" as const,
+        minDomain: undefined,
+        maxDomain: undefined,
+      };
+    }
+
+    // Get time range from actual data (not including projections)
+    const actualDataPoints = chartData.filter((d) => !d.isProjected);
+    if (actualDataPoints.length === 0) {
+      return {
+        ticks: undefined,
+        interval: "preserveStartEnd" as const,
+        minDomain: undefined,
+        maxDomain: undefined,
+      };
+    }
+
+    const minTime = Math.min(...actualDataPoints.map((d) => d.time));
+    const maxTime = Math.max(...actualDataPoints.map((d) => d.time));
+    const timeSpanHours = (maxTime - minTime) / (1000 * 60 * 60);
+
+    // Debug logging
+    console.log(
+      `Chart data points: ${data.length} total, ${actualDataPoints.length} actual`,
+    );
+    console.log(
+      `Time span: ${timeSpanHours.toFixed(2)} hours (${new Date(minTime).toLocaleTimeString()} - ${new Date(maxTime).toLocaleTimeString()})`,
+    );
+    if (data.length > 0) {
+      const firstTimestamp = new Date(data[0].Timestamp).toLocaleTimeString();
+      const lastTimestamp = new Date(
+        data[data.length - 1].Timestamp,
+      ).toLocaleTimeString();
+      console.log(`Original data range: ${firstTimestamp} - ${lastTimestamp}`);
+    }
+
+    // Determine tick interval and count based on time span
+    // Aim for 4-6 ticks to avoid overlap in the popup width
+    let tickIntervalMs: number;
+    if (timeSpanHours <= 2) {
+      // 30 minute ticks for <= 2 hours
+      tickIntervalMs = 30 * 60 * 1000;
+    } else if (timeSpanHours <= 6) {
+      // 1 hour ticks for 2-6 hours
+      tickIntervalMs = 60 * 60 * 1000;
+    } else if (timeSpanHours <= 12) {
+      // 2 hour ticks for 6-12 hours
+      tickIntervalMs = 2 * 60 * 60 * 1000;
+    } else if (timeSpanHours <= 18) {
+      // 3 hour ticks for 12-18 hours
+      tickIntervalMs = 3 * 60 * 60 * 1000;
+    } else {
+      // 4 hour ticks for > 18 hours
+      tickIntervalMs = 4 * 60 * 60 * 1000;
+    }
+
+    // Round minTime down to nearest tick interval for clean axis start
+    const roundedMinTime =
+      Math.floor(minTime / tickIntervalMs) * tickIntervalMs;
+    // Round maxTime up to nearest tick interval for clean axis end
+    const roundedMaxTime = Math.ceil(maxTime / tickIntervalMs) * tickIntervalMs;
+
+    // Generate tick values from rounded start to rounded end
+    const ticks: number[] = [];
+    let currentTick = roundedMinTime;
+    while (currentTick <= roundedMaxTime) {
+      ticks.push(currentTick);
+      currentTick += tickIntervalMs;
+    }
+
+    return {
+      ticks,
+      interval: 0 as const,
+      minDomain: roundedMinTime,
+      maxDomain: roundedMaxTime,
+    };
+  };
+
+  const xAxisConfig = calculateXAxisConfig();
+
   // Create theme-aware tooltip style
   const tooltipContentStyle = {
     backgroundColor: themeColors.background.primary,
@@ -82,8 +167,14 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
             <XAxis
               type="number"
               dataKey="time"
-              domain={["dataMin", "dataMax"]}
+              domain={
+                xAxisConfig.minDomain && xAxisConfig.maxDomain
+                  ? [xAxisConfig.minDomain, xAxisConfig.maxDomain]
+                  : ["dataMin", "dataMax"]
+              }
               scale="time"
+              ticks={xAxisConfig.ticks}
+              interval={xAxisConfig.interval}
               tickFormatter={(timestamp) => {
                 return new Date(timestamp).toLocaleTimeString("en-US", {
                   hour: "2-digit",
@@ -91,7 +182,6 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({
                   hour12: false,
                 });
               }}
-              interval="preserveStartEnd"
               tick={{
                 fontSize: themeChartStyles.axis.fontSize,
                 fontFamily: themeChartStyles.axis.fontFamily,

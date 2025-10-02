@@ -97,8 +97,9 @@ export class ChromeStorage {
     value: number,
     data: GlucoseData[],
   ): Promise<void> {
-    // Limit stored data to last 50 readings to avoid quota issues
-    const limitedData = data.slice(-50);
+    // Limit stored data to last 200 readings to avoid quota issues
+    // At ~5 minute intervals, this provides ~16 hours of historical data
+    const limitedData = data.slice(-200);
     await this.set({
       lastGlucoseValue: value,
       glucoseData: limitedData,
